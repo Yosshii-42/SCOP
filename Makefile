@@ -3,6 +3,7 @@ UNAME_S := $(shell uname -s)
 NAME	= SCOP
 NAME_B  = SCOP_bonus
 
+
 CXX		= c++
 CC		= cc
 
@@ -19,7 +20,13 @@ CFLAGS		= -Wall -Wextra -Werror -O3 \
 
 # macOSとLinuxでライブラリを分ける
 ifeq ($(UNAME_S), Darwin)
-	LIBS	= -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo
+	CXXFLAGS += -I/usr/local/opt/glfw/include
+	CFLAGS	 += -I/usr/local/opt/glfw/include
+	LIBS	= -L/usr/local/opt/glfw/lib -lglfw \
+					-framework OpenGL \
+					-framework Cocoa \
+					-framework IOKit \
+					-framework CoreVideo
 else
 	LIBS	= $(shell pkg-config --libs glfw3) -lGL -ldl -lpthread
 endif
