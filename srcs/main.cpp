@@ -10,6 +10,7 @@ void processInput(GLFWwindow *window);
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
+// define source doce
 const char *vertexShaderSource = "#version 330 core\n"
 	"layout (location = 0) in vec3 aPos\n"
 	"void main()\n"
@@ -26,7 +27,7 @@ const char *fragmentShaderSource = "#version 330 core\n"
 
 int main(void)
 {
-	// initialize and configure
+	// glfw: initialize and configure
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -65,6 +66,8 @@ int main(void)
 	{
 		// input
 		processInput(window);
+
+		// update
 
 		// render
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
