@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+
+
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
 
@@ -27,6 +29,9 @@ const char *fragmentShaderSource = "#version 330 core\n"
 
 int main(void)
 {
+  
+
+
 	// glfw: initialize and configure
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
