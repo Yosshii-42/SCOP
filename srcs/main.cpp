@@ -2,8 +2,9 @@
 #include <GLFW/glfw3.h>
 
 #include <iostream>
+#include <sys/stat.h>
 
-
+#include "parser/tokenizer.hpp"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -17,7 +18,8 @@ const char *vertexShaderSource = "#version 330 core\n"
 	"layout (location = 0) in vec3 aPos;\n"
 	"void main()\n"
 	"{\n"
-	"	gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+	// "	gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+	"	gl_Position = vec4((aPos.z - 1.4) * 0.65, (aPos.y + 0.05) * 0.65, aPos.x * 0.65, 1.0);\n"
 	"}\n\0";
 
 const char *fragmentShaderSource = "#version 330 core\n"
@@ -27,11 +29,37 @@ const char *fragmentShaderSource = "#version 330 core\n"
 	"	FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
 	"}\n\0";
 
-int main(void)
+void  checkArgv(int argc, char **argv) {
+  if (argc != 2) {
+    std::cerr << "Argument number error" << std::endl;
+    std::exit(EXIT_FAILURE);
+  }
+
+  struct stat status;
+
+  if (stat(argv[1], &status) != 0) {
+    std::cerr << "Failed to stat file: " << argv[1] << std::endl;
+    std::exit(EXIT_FAILURE);
+  }
+  if (status.st_mode & S_IFDIR) {
+    std::cerr << argv[1] << ": is a directory" << std::endl;
+    std::exit(EXIT_FAILURE);
+  }
+
+  std::string fileName(argv[1]);
+  if (fileName.size() < 4 ||
+      fileName.compare(fileName.size() - 4, 4, ".obj") != 0) {
+      std::cerr << "filename must have \".obj\" extention" << std::endl;
+      std::exit(EXIT_FAILURE);
+  }
+}
+
+int main(int argc, char **argv)
 {
+  checkArgv(argc, argv);
+
+  Tokenizer tokenizer(argv[1]);
   
-
-
 	// glfw: initialize and configure
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -61,6 +89,8 @@ int main(void)
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
 	}
+  // 深度テストを有効にする
+  glEnable(GL_DEPTH_TEST);
 
   // build ajd compile shader programs
   // ---------------------------------
@@ -106,24 +136,46 @@ int main(void)
 
   // setup vertex data
   // -------------------
-  float vertices[] = {
-    -0.5f, -0.5f, 0.0f, // left
-    0.0f, -0.5f, 0.0f,  // right
-    -0.25f, 0.4f, 0.0f,    // top
+  // float vertices[] = {
+  //   -0.5f, -0.5f, 0.0f, // left
+  //   0.0f, -0.5f, 0.0f,  // right
+  //   -0.25f, 0.4f, 0.0f,    // top
 
-    0.0f, -0.5f, 0.0f, // left
-    0.5f, -0.5f, 0.0f,  // right
-    0.25f, 0.5f, 0.0f,    // top
-  };
+  //   0.0f, -0.5f, 0.0f, // left
+  //   0.5f, -0.5f, 0.0f,  // right
+  //   0.25f, 0.5f, 0.0f,    // top
+  // };
 
-  unsigned int  VBO, VAO;
+  std::vector<float>            vertices = tokenizer.getVertices();
+  std::vector<std::vector<unsigned int>> faces = tokenizer.getFaces();
+  std::vector<unsigned int>     indices;
+
+  std::cout << "data set" << std::endl;
+
+  for (size_t i = 0; i < faces.size(); i++) {
+    const std::vector<unsigned int>& face = faces[i];
+    if (face.size() < 3)
+      std::exit(EXIT_FAILURE);
+    for (size_t j = 1; j + 1 < face.size(); j++) {
+      indices.push_back(face[0] - 1);
+      indices.push_back(face[j] - 1);
+      indices.push_back(face[j + 1] - 1);
+    }
+  }
+
+  unsigned int  VBO, VAO, EBO;
   glGenVertexArrays(1, &VAO);
   glGenBuffers(1, &VBO);
+  glGenBuffers(1, &EBO);
+
   // bind the vertex array object first, then bind and adt vertex buffers, and then cofigure certex attributess.
   glBindVertexArray(VAO);
 
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 
   // 頂点データをどのように会社デデータをどのように解釈すべどのように解釈すべきかを指示
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
@@ -147,12 +199,13 @@ int main(void)
 
 		// render
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // draw triangle
     glUseProgram(shaderProgram);
     glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 
 		// swap buffers and poll IO events
 		glfwSwapBuffers(window);
@@ -162,6 +215,7 @@ int main(void)
   // optional: de-allocate all resources
   glDeleteVertexArrays(1, &VAO);
   glDeleteBuffers(1, &VBO);
+  glDeleteBuffers(1, &EBO);
   glDeleteProgram(shaderProgram);
 
   // glfw: terminate, clean all GLFW resources

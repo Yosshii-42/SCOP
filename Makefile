@@ -7,16 +7,16 @@ NAME_B  = SCOP_bonus
 CXX		= c++
 CC		= cc
 
-GLAD_DIR = glad
+GLAD_DIR = includes/glad
 
 CXXFLAGS	= -Wall -Wextra -Werror -O3 -std=c++17 \
-			  -I./include \
-			  -I$(GLAD_DIR)/include \
-			  -MMD -MP
+			  		-I./includes \
+			  		-I$(GLAD_DIR)/include \
+			  		-MMD -MP
 
 CFLAGS		= -Wall -Wextra -Werror -O3 \
-			  -I./include \
-			  -I$(GLAD_DIR)/include
+			  		-I./includes \
+			  		-I$(GLAD_DIR)/include
 
 # macOSとLinuxでライブラリを分ける
 ifeq ($(UNAME_S), Darwin)
@@ -31,7 +31,8 @@ else
 	LIBS	= $(shell pkg-config --libs glfw3) -lGL -ldl -lpthread
 endif
 
-SRCS	= $(GLAD_DIR)/src/glad.c
+SRCS	= $(GLAD_DIR)/src/glad.c \
+				srcs/parser/tokenizer.cpp
 
 SRC_M  	= srcs/main.cpp
 SRC_B  	= srcs/main_bonus.cpp
