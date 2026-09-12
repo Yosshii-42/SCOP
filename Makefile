@@ -32,6 +32,10 @@ else
 endif
 
 SRCS	= $(GLAD_DIR)/src/glad.c \
+				srcs/math/Mat4.cpp \
+				srcs/math/Vec2.cpp \
+				srcs/math/Vec3.cpp \
+				srcs/math/Vec4.cpp \
 				srcs/shader/Shader.cpp \
 				srcs/parser/tokenizer.cpp
 

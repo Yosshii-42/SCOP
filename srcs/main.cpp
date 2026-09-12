@@ -6,6 +6,9 @@
 
 #include "parser/tokenizer.hpp"
 #include "shader/Shader.hpp"
+#include "math/Mat4.hpp"
+#include "math/Vec3.hpp"
+#include "math/Vec4.hpp"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -152,12 +155,22 @@ int main(int argc, char **argv)
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // update shader uniform
-
-    // draw triangle
-    // glUseProgram(shaderProgram);
+    // CPU側で変換行列を作る
+    Mat4  trans;
+    trans = Mat4::translation(0.0f, 0.0f, 0.0f);
+    trans *= Mat4::rotationY(Mat4::radians(-90.0f));
+    // trans *= Mat4::rotationX(static_cast<float>(glfwGetTime()));
+    trans *= Mat4::rotationZ(static_cast<float>(glfwGetTime()));
+    // trans *= Mat4::rotationY(static_cast<float>(glfwGetTime()));
+    trans *= Mat4::scale(0.2f, 0.2f, 0.2f);
+    
+    // 使用するshaderprogramを指定する
     ourShader.use();
 
+    // 作った行列をuniformに送る
+    ourShader.setMat4("transform", trans);
+
+    // 描画
     glBindVertexArray(VAO);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
