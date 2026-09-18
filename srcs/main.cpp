@@ -4,93 +4,20 @@
 #include <iostream>
 #include <sys/stat.h>
 
+#include "utils/utils.hpp"
 #include "parser/tokenizer.hpp"
 #include "shader/Shader.hpp"
 #include "math/Mat4.hpp"
 #include "math/Vec3.hpp"
 #include "math/Vec4.hpp"
-
-void framebuffer_size_callback(GLFWwindow *window, int width, int height);
-void processInput(GLFWwindow *window);
-
-// settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
-
-void  checkArgv(int argc, char **argv) {
-  if (argc != 2) {
-    std::cerr << "Argument number error" << std::endl;
-    std::exit(EXIT_FAILURE);
-  }
-
-  struct stat status;
-
-  if (stat(argv[1], &status) != 0) {
-    std::cerr << "Failed to stat file: " << argv[1] << std::endl;
-    std::exit(EXIT_FAILURE);
-  }
-  if (status.st_mode & S_IFDIR) {
-    std::cerr << argv[1] << ": is a directory" << std::endl;
-    std::exit(EXIT_FAILURE);
-  }
-
-  std::string fileName(argv[1]);
-  if (fileName.size() < 4 ||
-      fileName.compare(fileName.size() - 4, 4, ".obj") != 0) {
-      std::cerr << "filename must have \".obj\" extention" << std::endl;
-      std::exit(EXIT_FAILURE);
-  }
-}
-
-GLFWwindow*  initWindow()
-{
-  // reset cwd
-  #ifdef __APPLE__
-  glfwInitHint(GLFW_COCOA_CHDIR_RESOURCES, GLFW_FALSE);
-  #endif
-  
-	// glfw: initialize and configure
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-  #ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-  #endif
-
-
-	// glfw: window creation
-  // ---------------------
-  GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
-	if (window == NULL)
-	{
-		std::cout << "Failed to create GLFW window" << std::endl;
-		glfwTerminate();
-		std::exit(EXIT_FAILURE);
-	}
-	glfwMakeContextCurrent(window);
-  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
-	// glad: OpenGL関数を呼び出す前にGLADを初期化する
-  // -----------------------------------------
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		std::cout << "Failed to initialize GLAD" << std::endl;
-		std::exit(EXIT_FAILURE);
-	}
-
-  return (window);
-}
-
-
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image/stb_image.h"
 
 int main(int argc, char **argv)
 {
-  checkArgv(argc, argv);
+  Utils::checkArgv(argc, argv);
   Tokenizer tokenizer(argv[1]);
-  GLFWwindow* window = initWindow();
-
+  GLFWwindow* window = Utils::initWindow();
 
   // 深度テストを有効にする
   glEnable(GL_DEPTH_TEST);
@@ -99,7 +26,8 @@ int main(int argc, char **argv)
   Shader  ourShader("shaders/vertex.glsl", "shaders/fragment.glsl");
 
   // .objファイルから頂点データを取得
-  std::vector<float>            vertices = tokenizer.getVertices();
+  // std::vector<float>            vertices = tokenizer.getVertices();
+  std::vector<float>            vertexUVs = tokenizer.getVertexUVs();
   std::vector<std::vector<unsigned int>> faces = tokenizer.getFaces();
   std::vector<unsigned int>     indices;
 
@@ -123,22 +51,49 @@ int main(int argc, char **argv)
   glBindVertexArray(VAO);
 
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, vertexUVs.size() * sizeof(float), vertexUVs.data(), GL_STATIC_DRAW);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 
-  // 頂点データをどのように会社デデータをどのように解釈すべどのように解釈すべきかを指示
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+  // 頂点データをどのように解釈すべどのように解釈すべきかを指示
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
   glEnableVertexAttribArray(0);
+
+  // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+  // glEnableVertexAttribArray(1);
+
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+  glEnableVertexAttribArray(2);
+
+  // テクスチャ画像読み込み
+  unsigned int  texture;
+  glGenTextures(1, &texture);
+  glBindTexture(GL_TEXTURE_2D, texture);
+  // set the texture wrapping/filtering options
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  // loat and generate the texture
+  int width, height, nrChannels;
+  unsigned char *data = stbi_load("img/wall.jpg", &width, &height, &nrChannels, 0);
+  if (data)
+  {
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+  }
+  else
+  {
+    std::cout << "Failed to load texture" << std::endl;
+  }
+  stbi_image_free(data);
 
   // unbind VBO
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 
   // unbind VAO
   glBindVertexArray(0);
-  
-  // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -147,7 +102,7 @@ int main(int argc, char **argv)
 	while (!glfwWindowShouldClose(window))
 	{
 		// input
-		processInput(window);
+		Utils::processInput(window);
 
 		// update
 
@@ -155,24 +110,33 @@ int main(int argc, char **argv)
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    glBindTexture(GL_TEXTURE_2D, texture);
+
     // CPU側で変換行列を作る
-    Mat4  trans;
-    trans = Mat4::translation(0.0f, 0.0f, 0.0f);
-    trans *= Mat4::rotationY(Mat4::radians(-90.0f));
-    // trans *= Mat4::rotationX(static_cast<float>(glfwGetTime()));
-    trans *= Mat4::rotationZ(static_cast<float>(glfwGetTime()));
-    // trans *= Mat4::rotationY(static_cast<float>(glfwGetTime()));
-    trans *= Mat4::scale(0.2f, 0.2f, 0.2f);
+    Mat4  model;
+    model *= Mat4::rotate(Mat4::radians(-90.0f), Vec3(0.0f, 1.0f, 0.0f));
+    model *= Mat4::rotate((float)glfwGetTime() , Vec3(-1.0f, 1.0f, 0.0f));
+    model *= Mat4::scale(0.6f, 0.6f, 0.6f);
+    Vec3  center = tokenizer.getCenter();
+    model *= Mat4::translate(-center.x, -center.y, -center.z);
+    Mat4  view;
+    view *= Mat4::translate(0.0f, 0.0f, -3.0f);
+    Mat4  projection;
+    projection *= Mat4::perspective(Mat4::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
     
+    // GPUに渡す
     // 使用するshaderprogramを指定する
     ourShader.use();
-
     // 作った行列をuniformに送る
-    ourShader.setMat4("transform", trans);
+    ourShader.setMat4("model", model);
+    ourShader.setMat4("view", view);
+    ourShader.setMat4("projection", projection);
 
+    
     // 描画
     glBindVertexArray(VAO);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 
 		// swap buffers and poll IO events
@@ -184,7 +148,6 @@ int main(int argc, char **argv)
   glDeleteVertexArrays(1, &VAO);
   glDeleteBuffers(1, &VBO);
   glDeleteBuffers(1, &EBO);
-  // glDeleteProgram(shaderProgram);
 
   // glfw: terminate, clean all GLFW resources
 	glfwTerminate();
@@ -192,18 +155,18 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-void processInput(GLFWwindow *window)
-{
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, true);
-}
+// void processInput(GLFWwindow *window)
+// {
+// 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+// 		glfwSetWindowShouldClose(window, true);
+// }
 
-// ウィンドウのサイズが変更されるたびに呼び出されるコールバック関数
-void framebuffer_size_callback(GLFWwindow *window, int width, int height)
-{
-	(void)window;
+// // ウィンドウのサイズが変更されるたびに呼び出されるコールバック関数
+// void framebuffer_size_callback(GLFWwindow *window, int width, int height)
+// {
+// 	(void)window;
 
-  // OpenGLにレンダリングウィンドウのサイズを伝える
-	// 最初の２つの引数でウィンドウの左下隅の位置を設定する
-	glViewport(0, 0, width, height);
-}
+//   // OpenGLにレンダリングウィンドウのサイズを伝える
+// 	// 最初の２つの引数でウィンドウの左下隅の位置を設定する
+// 	glViewport(0, 0, width, height);
+// }

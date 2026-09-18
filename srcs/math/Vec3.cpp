@@ -97,6 +97,8 @@ float Vec3::length() const {
 
 Vec3  Vec3::normalize() const {
   float length = this->length();
+  if (length == 0.0f)
+    throw std::runtime_error("Vec3: division by zero");
   return (*this/length);
 }
 

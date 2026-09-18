@@ -15,6 +15,18 @@ Mat4::Mat4() {
 
 Mat4::~Mat4() {}
 
+// functions
+const float*  Mat4::data() const
+{
+  return &this->m_[0][0];
+}
+
+// degtreeからradianを算出する
+float Mat4::radians(float degrees)
+{
+  return degrees * M_PI / 180.0f;
+}
+
 Mat4 Mat4::scale(float x, float y, float z)
 {
   Mat4 result;
@@ -26,12 +38,8 @@ Mat4 Mat4::scale(float x, float y, float z)
   return result;
 }
 
-float Mat4::radians(float degrees)
+Mat4 Mat4::translate(float x, float y, float z)
 {
-  return degrees * M_PI / 180.0f;
-}
-
-Mat4 Mat4::translation(float x, float y, float z) {
   Mat4 result;
 
   result.m_[0][3] = x;
@@ -41,41 +49,84 @@ Mat4 Mat4::translation(float x, float y, float z) {
   return result;
 }
 
-Mat4 Mat4::rotationX(float angle) {
-  Mat4 result;
+Mat4  Mat4::rotate(float angle, const Vec3& inputAxis)
+{
+  Mat4  result;
+  Vec3  axis = inputAxis.normalize();
 
-  result.m_[1][1] = std::cos(angle);
-  result.m_[1][2] = -std::sin(angle);
-  result.m_[2][1] = std::sin(angle);
-  result.m_[2][2] = std::cos(angle);
+  float x = axis.x;
+  float y = axis.y;
+  float z = axis.z;
 
-  return  result;
-}
+  float c = std::cos(angle);
+  float s = std::sin(angle);
 
-Mat4 Mat4::rotationY(float angle) {
-  Mat4 result;
+  result.m_[0][0] = c + x * x * (1 - c);
+  result.m_[0][1] = x * y * (1 - c) - z * s;
+  result.m_[0][2] = x * z * (1 - c) + y * s;
+  result.m_[0][3] = 0.0f;
 
-  result.m_[0][0] = std::cos(angle);
-  result.m_[0][2] = std::sin(angle);
-  result.m_[2][0] = -std::sin(angle);
-  result.m_[2][2] = std::cos(angle);
+  result.m_[1][0] = y * x * (1 - c) + z * s;
+  result.m_[1][1] = c + y * y * (1 - c);
+  result.m_[1][2] = y * z * (1 - c) - x * s;
+  result.m_[1][3] = 0.0f;
+
+  result.m_[2][0] = z * x * (1 - c) - y * s;
+  result.m_[2][1] = z * y * (1 - c) + x * s;
+  result.m_[2][2] = c + z * z * (1 - c);
+  result.m_[2][3] = 0.0f;
+
+  result.m_[3][0] = 0.0f;
+  result.m_[3][1] = 0.0f;
+  result.m_[3][2] = 0.0f;
+  result.m_[3][3] = 1.0f;
 
   return result;
 }
 
-Mat4 Mat4::rotationZ(float angle) {
-  Mat4 result;
+Mat4  Mat4::ortho(float left, float right, float bottom, float top, float near, float far)
+{
+  Mat4  result;
 
-  result.m_[0][0] = std::cos(angle);
-  result.m_[0][1] = -std::sin(angle);
-  result.m_[1][0] = std::sin(angle);
-  result.m_[1][1] = std::cos(angle);
+  result.m_[0][0] = 2.0f / (right - left);
+  result.m_[0][3] = -(right + left) / (right - left);
+  
+  result.m_[1][1] = 2.0f / (top - bottom);
+  result.m_[1][3] = -(top + bottom) / (top - bottom);
+
+  result.m_[2][2] = -2.0f / (far - near);
+  result.m_[2][3] = -(far + near) / (far - near);
 
   return result;
 }
 
-const float*  Mat4::data() const {
-  return &this->m_[0][0];
+Mat4  Mat4::perspective(float fov, float aspect, float near, float far)
+{
+  float top = near * std::tan(fov / 2.0f);
+  float bottom = -top;
+  float right = top * aspect;
+  float left = -right;
+
+  return Mat4::frustum(left, right, bottom, top, near, far);
+}
+
+Mat4  Mat4::frustum(float left, float right, float bottom, float top, float near, float far)
+{
+  Mat4  result;
+
+  result.m_[0][0] = 2.0f * near / (right - left);
+  result.m_[0][2] = (right + left) / (right - left);
+
+  result.m_[1][1] = 2.0f * near / (top - bottom);
+  result.m_[1][2] = (top + bottom) / (top - bottom);
+
+  result.m_[2][2] = -(far + near) / (far - near);
+  result.m_[2][3] = -2.0f * far * near / (far - near);
+
+  result.m_[3][2] = -1.0f;
+  result.m_[3][3] = 0.0f;
+
+  return result;
 }
 
 // operators

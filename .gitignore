@@ -2,3 +2,4 @@
 SCOP
 *.o
 *.d
+*.DS_Store

@@ -32,6 +32,7 @@ else
 endif
 
 SRCS	= $(GLAD_DIR)/src/glad.c \
+				srcs/utils/utils.cpp \
 				srcs/math/Mat4.cpp \
 				srcs/math/Vec2.cpp \
 				srcs/math/Vec3.cpp \
