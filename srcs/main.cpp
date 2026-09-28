@@ -7,6 +7,7 @@
 #include "utils/utils.hpp"
 #include "parser/tokenizer.hpp"
 #include "shader/Shader.hpp"
+#include "gl/Window.hpp"
 #include "math/Mat4.hpp"
 #include "math/Vec3.hpp"
 #include "math/Vec4.hpp"
@@ -17,7 +18,7 @@ int main(int argc, char **argv)
 {
   Utils::checkArgv(argc, argv);
   Tokenizer tokenizer(argv[1]);
-  GLFWwindow* window = Utils::initWindow();
+  Window window;
 
   // 深度テストを有効にする
   glEnable(GL_DEPTH_TEST);
@@ -26,8 +27,8 @@ int main(int argc, char **argv)
   Shader  ourShader("shaders/vertex.glsl", "shaders/fragment.glsl");
 
   // .objファイルから頂点データを取得
-  // std::vector<float>            vertices = tokenizer.getVertices();
-  std::vector<float>            vertexUVs = tokenizer.getVertexUVs();
+  std::vector<float>            vertices = tokenizer.getVertices();
+  // std::vector<float>            vertexUVs = tokenizer.getVertexUVs();
   std::vector<std::vector<unsigned int>> faces = tokenizer.getFaces();
   std::vector<unsigned int>     indices;
 
@@ -51,20 +52,24 @@ int main(int argc, char **argv)
   glBindVertexArray(VAO);
 
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, vertexUVs.size() * sizeof(float), vertexUVs.data(), GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+  // glBufferData(GL_ARRAY_BUFFER, vertexUVs.size() * sizeof(float), vertexUVs.data(), GL_STATIC_DRAW);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 
   // 頂点データをどのように解釈すべどのように解釈すべきかを指示
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+  // 頂点
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
   glEnableVertexAttribArray(0);
 
+  // 色
   // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
   // glEnableVertexAttribArray(1);
 
-  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-  glEnableVertexAttribArray(2);
+  // uv座標
+  // glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+  // glEnableVertexAttribArray(2);
 
   // テクスチャ画像読み込み
   unsigned int  texture;
@@ -99,10 +104,10 @@ int main(int argc, char **argv)
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// レンダリングループ
-	while (!glfwWindowShouldClose(window))
+	while (!glfwWindowShouldClose(window.getWindow()))
 	{
 		// input
-		Utils::processInput(window);
+    window.processInput();
 
 		// update
 
@@ -115,8 +120,8 @@ int main(int argc, char **argv)
     // CPU側で変換行列を作る
     Mat4  model;
     model *= Mat4::rotate(Mat4::radians(-90.0f), Vec3(0.0f, 1.0f, 0.0f));
-    model *= Mat4::rotate((float)glfwGetTime() , Vec3(-1.0f, 1.0f, 0.0f));
-    model *= Mat4::scale(0.6f, 0.6f, 0.6f);
+    model *= Mat4::rotate((float)glfwGetTime() , Vec3(-1.0f, 1.0f, 1.0f));
+    model *= Mat4::scale(0.4f, 0.4f, 0.4f);
     Vec3  center = tokenizer.getCenter();
     model *= Mat4::translate(-center.x, -center.y, -center.z);
     Mat4  view;
@@ -137,10 +142,11 @@ int main(int argc, char **argv)
     glBindVertexArray(VAO);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 
 		// swap buffers and poll IO events
-		glfwSwapBuffers(window);
+		glfwSwapBuffers(window.getWindow());
 		glfwPollEvents();
 	}
 
