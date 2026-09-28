@@ -6,7 +6,7 @@
 
 #include "utils/utils.hpp"
 #include "parser/tokenizer.hpp"
-#include "shader/Shader.hpp"
+#include "gl/Shader.hpp"
 #include "gl/Window.hpp"
 #include "math/Mat4.hpp"
 #include "math/Vec3.hpp"
