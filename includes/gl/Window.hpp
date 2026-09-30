@@ -11,14 +11,13 @@ private:
 
   static void framebufferSizeCallback(
     GLFWwindow* window, int width, int height);
-
-  Window(const Window&);
-  Window& operator=(const Window&);
-
+    
 public:
   Window();
   ~Window();
-
+  Window(const Window&) = delete;
+  Window& operator=(const Window&) = delete;
+  
   GLFWwindow* getWindow() const;
   void processInput();
 };

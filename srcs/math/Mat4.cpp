@@ -15,6 +15,31 @@ Mat4::Mat4() {
 
 Mat4::~Mat4() {}
 
+Mat4::Mat4(const Mat4& other)
+{
+  for (int row = 0; row < 4; ++row)
+  {
+    for (int col = 0; col < 4; ++col)
+    {
+      this->m_[row][col] = other.m_[row][col];
+    }
+  }
+}
+
+Mat4& Mat4::operator=(const Mat4& other)
+{
+  if (this != &other)
+  for (int row = 0; row < 4; ++row)
+  {
+    for (int col = 0; col < 4; ++col)
+    {
+      this->m_[row][col] = other.m_[row][col];
+    }
+  }
+
+  return (*this);
+}
+
 // functions
 const float*  Mat4::data() const
 {

@@ -21,6 +21,8 @@ private:
 public:
   Shader(const char* vertexPath, const char* fragmentPath);
   ~Shader();
+  Shader(const Shader&) = delete;
+  Shader& operator=(const Shader&) = delete;
 
   // activate function
   void  use();

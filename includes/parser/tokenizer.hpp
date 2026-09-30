@@ -24,10 +24,10 @@ const std::vector<std::vector<unsigned int>>  getFaces();
 Vec3  getCenter();
 
 private:
-  std::string                     fileName_;
-  std::vector<float>              vertices_;
-  std::vector<float>              vertexDatas_;
-  std::vector<std::vector<unsigned int>> faces_;
+  std::string                             fileName_;
+  std::vector<float>                      vertices_;
+  std::vector<float>                      vertexDatas_;
+  std::vector<std::vector<unsigned int>>  faces_;
   void  makeCenter();
 
   float minX_;

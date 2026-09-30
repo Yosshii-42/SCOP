@@ -13,6 +13,8 @@ private:
 public:
   Mat4();
   ~Mat4();
+  Mat4(const Mat4& other);
+  Mat4& operator=(const Mat4& other);
 
   // functions
   const float*  data() const;

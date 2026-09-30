@@ -34,11 +34,12 @@ endif
 SRCS	= $(GLAD_DIR)/src/glad.c \
 				srcs/utils/utils.cpp \
 				srcs/gl/Window.cpp \
+				srcs/gl/Shader.cpp \
+				srcs/gl/Object.cpp \
 				srcs/math/Mat4.cpp \
 				srcs/math/Vec2.cpp \
 				srcs/math/Vec3.cpp \
 				srcs/math/Vec4.cpp \
-				srcs/shader/Shader.cpp \
 				srcs/parser/tokenizer.cpp
 
 SRC_M  	= srcs/main.cpp
