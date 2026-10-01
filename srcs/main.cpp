@@ -1,19 +1,16 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
 #include <iostream>
-#include <sys/stat.h>
 
 #include "utils/utils.hpp"
 #include "parser/tokenizer.hpp"
 #include "gl/Shader.hpp"
 #include "gl/Window.hpp"
 #include "gl/Object.hpp"
+#include "gl/Texture.hpp"
 #include "math/Mat4.hpp"
 #include "math/Vec3.hpp"
 #include "math/Vec4.hpp"
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image/stb_image.h"
 
 int main(int argc, char **argv)
 {
@@ -21,50 +18,19 @@ int main(int argc, char **argv)
   Tokenizer tokenizer(argv[1]);
   
   {
-    Window window;
-  
-    // 深度テストを有効にする
-    glEnable(GL_DEPTH_TEST);
-  
-    // shaderをインスタンス化
-    Shader  ourShader("shaders/vertex.glsl", "shaders/fragment.glsl");
+    Window window;                              // window作成
+    glEnable(GL_DEPTH_TEST);                    // 深度テストを有効にする
+    Shader  ourShader("shaders/vertex.glsl",    // shaderをインスタンス化
+                      "shaders/fragment.glsl");
 
-    // // .objファイルから頂点データを取得
-    std::vector<float>            vertices = tokenizer.getVertices();
-    // // std::vector<float>            vertexUVs = tokenizer.getVertexUVs();
+    // .objファイルから頂点データを取得
+    std::vector<float>                     vertices = tokenizer.getVertices();
+    // std::vector<float>                  vertexUVs = tokenizer.getVertexUVs();
     std::vector<std::vector<unsigned int>> faces = tokenizer.getFaces();
   
-    Object  obj(vertices, faces);
+    Object  obj(vertices, faces);               // VAO,VBO,EBO設定
     obj.setupGPU();
-
-    // テクスチャ画像読み込み
-    unsigned int  texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    // set the texture wrapping/filtering options
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // loat and generate the texture
-    int width, height, nrChannels;
-    unsigned char *data = stbi_load("img/wall.jpg", &width, &height, &nrChannels, 0);
-    if (data)
-    {
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-      glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-      std::cout << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data);
-  
-    // // unbind VBO
-    // glBindBuffer(GL_ARRAY_BUFFER, 0);
-  
-    // // unbind VAO
-    // glBindVertexArray(0);
+    Texture texture("img/wall.jpg");            // texture読み込み
   
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -72,8 +38,7 @@ int main(int argc, char **argv)
     // レンダリングループ
     while (!glfwWindowShouldClose(window.getWindow()))
     {
-      // input
-      window.processInput();
+      window.processInput();                    // IO
   
       // update
   
@@ -81,8 +46,9 @@ int main(int argc, char **argv)
       glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   
-      glBindTexture(GL_TEXTURE_2D, texture);
-  
+      // glBindTexture(GL_TEXTURE_2D, texture);
+      texture.bind();
+
       // CPU側で変換行列を作る
       Mat4  model;
       model *= Mat4::rotate(Mat4::radians(-90.0f), Vec3(0.0f, 1.0f, 0.0f));
@@ -96,17 +62,15 @@ int main(int argc, char **argv)
       projection *= Mat4::perspective(Mat4::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
       
       // GPUに渡す
-      // 使用するshaderprogramを指定する
+      // 使用するshaderprogramを指定し、作った行列をuniformに送る
       ourShader.use();
-      // 作った行列をuniformに送る
       ourShader.setMat4("model", model);
       ourShader.setMat4("view", view);
       ourShader.setMat4("projection", projection);
   
-      
       // 描画
-      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);  // mode設定
+      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);  // mode設定
       obj.draw();
   
       // swap buffers and poll IO events

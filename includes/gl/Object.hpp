@@ -14,13 +14,13 @@ private:
   unsigned int  VBO_;
   unsigned int  EBO_;
   
-  Object(const Object&) = delete;
-  Object& operator=(const Object&) = delete;
-
+  
 public:
   Object(const std::vector<float>& vertices,
-          const std::vector<std::vector<unsigned int> >& faces);
+         const std::vector<std::vector<unsigned int> >& faces);
   ~Object();
+  Object(const Object&) = delete;
+  Object& operator=(const Object&) = delete;
 
   void  setIndices(); 
   void  setupGPU();
