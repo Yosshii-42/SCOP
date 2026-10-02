@@ -8,12 +8,13 @@ class Object {
 private:
   std::vector<float>                      vertices_;
   std::vector<std::vector<unsigned int>>  faces_;
-  std::vector<unsigned int>               indices_;
+  std::vector<float>                      vertexData_;  // 色情報を入れたvertexデータ
 
   unsigned int  VAO_;
   unsigned int  VBO_;
-  unsigned int  EBO_;
   
+  void  setVertexData();
+  void  addVertexData(unsigned int index, float gray);
   
 public:
   Object(const std::vector<float>& vertices,
@@ -22,7 +23,6 @@ public:
   Object(const Object&) = delete;
   Object& operator=(const Object&) = delete;
 
-  void  setIndices(); 
   void  setupGPU();
   void  draw() const;
 };
@@ -32,11 +32,7 @@ public:
 //  ↓
 // VBO作成
 //  ↓
-// EBO作成
-//  ↓
-// vertices_ → VBO
-//  ↓
-// indices_ → EBO
+// vertices_ → vertexData_ →　VBO
 //  ↓
 // 頂点属性の配線
 //  ↓
