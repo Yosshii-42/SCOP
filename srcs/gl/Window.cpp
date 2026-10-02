@@ -1,9 +1,5 @@
 #include "gl/Window.hpp"
 
-// settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 800;
-
 Window::Window() : window_(NULL)
 {
 // reset cwd
@@ -23,7 +19,11 @@ glfwInitHint(GLFW_COCOA_CHDIR_RESOURCES, GLFW_FALSE);
 
 	// glfw: window creation
   // ---------------------
-  window_ = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+  window_ = glfwCreateWindow(Common::SCR_WIDTH,
+                             Common::SCR_HEIGHT,
+                             "LearnOpenGL",
+                             NULL,
+                             NULL);
 	if (window_ == NULL)
 	{
 		glfwTerminate();
@@ -55,10 +55,56 @@ GLFWwindow*  Window::getWindow() const
   return (window_);
 }
 
-void Window::processInput()
+void Window::processInput(Operation& operation)
 {
+  // esc
 	if (glfwGetKey(window_, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window_, true);
+
+  // [→] 右回転
+  if (glfwGetKey(window_, GLFW_KEY_RIGHT) == GLFW_PRESS)
+    operation.rotateY(Mat4::radians(1.0f));
+  // [←] 左回転
+  if (glfwGetKey(window_, GLFW_KEY_LEFT ) == GLFW_PRESS)
+    operation.rotateY(Mat4::radians(-1.0f));
+  // [↑] x軸上回転
+  if (glfwGetKey(window_, GLFW_KEY_UP) == GLFW_PRESS)
+    operation.rotateX(Mat4::radians(-1.0f));
+  // [↓] x軸下回転
+  if (glfwGetKey(window_, GLFW_KEY_DOWN) == GLFW_PRESS)
+    operation.rotateX(Mat4::radians(1.0f));
+  // [Q] z軸右回転
+  if (glfwGetKey(window_, GLFW_KEY_Q) == GLFW_PRESS)
+    operation.rotateZ(Mat4::radians(1.0f));
+  // [E] z軸左回転
+  if (glfwGetKey(window_, GLFW_KEY_E) == GLFW_PRESS)
+    operation.rotateZ(Mat4::radians(-1.0f));
+  
+  // [R] 上移動
+  if (glfwGetKey(window_, GLFW_KEY_R) == GLFW_PRESS)
+    operation.translateY(0.01f);
+  // [F] 下移動
+  if (glfwGetKey(window_, GLFW_KEY_F) == GLFW_PRESS)
+    operation.translateY(-0.01f);
+  // [A] 左移動
+  if (glfwGetKey(window_, GLFW_KEY_A) == GLFW_PRESS)
+    operation.translateX(-0.01f);
+  // [D] 右移動
+  if (glfwGetKey(window_, GLFW_KEY_D) == GLFW_PRESS)
+    operation.translateX(0.01f);
+  // [W] 前へ移動
+  if (glfwGetKey(window_, GLFW_KEY_W) == GLFW_PRESS)
+    operation.translateZ(0.01f);
+  // [S] 後ろへ移動
+  if (glfwGetKey(window_, GLFW_KEY_S) == GLFW_PRESS)
+    operation.translateZ(-0.01f);
+
+  // [Z] 拡大
+  if (glfwGetKey(window_, GLFW_KEY_Z) == GLFW_PRESS)
+    operation.scale(1.01f);
+  // [X] 縮小
+  if (glfwGetKey(window_, GLFW_KEY_X) == GLFW_PRESS)
+    operation.scale(0.99f);
 }
 
 // ウィンドウのサイズが変更されるたびに呼び出されるコールバック関数

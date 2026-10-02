@@ -20,8 +20,8 @@ void  Object::setVertexData()
     const std::vector<unsigned int>& face = faces_[i];
     if (face.size() < 3)
       throw std::runtime_error("Face size error"); 
-    // float gray = 0.5f + (i % 4) * 0.15f;
-    float gray = 0.3f + static_cast<float>(std::rand() % 46) / 100.0f;
+    // float gray = 0.5f + (i % 4) * 0.15f; // 規則的な模様が出る
+    float gray = 0.3f + static_cast<float>(std::rand() % 46) / 100.0f; // ランダムな模様が出る
     for (size_t j = 1; j + 1 < face.size(); ++j)
     {
       // 3つの頂点のface番号を取得する

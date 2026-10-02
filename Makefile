@@ -37,6 +37,7 @@ SRCS	= $(GLAD_DIR)/src/glad.c \
 				srcs/gl/Shader.cpp \
 				srcs/gl/Object.cpp \
 				srcs/gl/Texture.cpp \
+				srcs/gl/Operation.cpp \
 				srcs/math/Mat4.cpp \
 				srcs/math/Vec2.cpp \
 				srcs/math/Vec3.cpp \

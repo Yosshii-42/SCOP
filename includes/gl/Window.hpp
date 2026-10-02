@@ -5,6 +5,9 @@
 
 #include <iostream>
 
+#include "Common.hpp"
+#include "gl/Operation.hpp"
+
 class Window {
 private:
   GLFWwindow* window_;
@@ -19,5 +22,5 @@ public:
   Window& operator=(const Window&) = delete;
   
   GLFWwindow* getWindow() const;
-  void processInput();
+  void processInput(Operation& operation);
 };

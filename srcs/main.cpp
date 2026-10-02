@@ -4,10 +4,12 @@
 
 #include "utils/utils.hpp"
 #include "parser/tokenizer.hpp"
+#include "Common.hpp"
 #include "gl/Shader.hpp"
 #include "gl/Window.hpp"
 #include "gl/Object.hpp"
 #include "gl/Texture.hpp"
+#include "gl/Operation.hpp"
 #include "math/Mat4.hpp"
 #include "math/Vec3.hpp"
 #include "math/Vec4.hpp"
@@ -23,7 +25,7 @@ int main(int argc, char **argv)
     Shader  ourShader("shaders/vertex.glsl",    // shaderをインスタンス化
                       "shaders/fragment.glsl");
 
-    // .objファイルから頂点データを取得
+    // 頂点データを取得
     std::vector<float>                     vertices = tokenizer.getVertices();
     // std::vector<float>                  vertexUVs = tokenizer.getVertexUVs();
     std::vector<std::vector<unsigned int>> faces = tokenizer.getFaces();
@@ -32,15 +34,17 @@ int main(int argc, char **argv)
     obj.setupGPU();
     // Texture texture("img/wall.jpg");            // texture読み込み
   
+    Vec3  center = tokenizer.getCenter();
+    Operation operation(center);
+    operation.scale(0.3f);
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   
     // レンダリングループ
     while (!glfwWindowShouldClose(window.getWindow()))
     {
-      window.processInput();                    // IO
-  
-      // update
+      window.processInput(operation);                    // IO
   
       // render
       glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -50,16 +54,15 @@ int main(int argc, char **argv)
       // texture.bind();
 
       // CPU側で変換行列を作る
-      Mat4  model;
-      model *= Mat4::rotate(Mat4::radians(-90.0f), Vec3(0.0f, 1.0f, 0.0f));
-      model *= Mat4::rotate((float)glfwGetTime() , Vec3(-1.0f, 1.0f, 1.0f));
-      model *= Mat4::scale(0.3f, 0.3f, 0.3f);
-      Vec3  center = tokenizer.getCenter();
-      model *= Mat4::translate(-center.x, -center.y, -center.z);
+      Mat4  model = operation.getModelMatrix();
       Mat4  view;
       view *= Mat4::translate(0.0f, 0.0f, -3.0f);
       Mat4  projection;
-      projection *= Mat4::perspective(Mat4::radians(45.0f), 800.0f / 800.0f, 0.1f, 100.0f);
+      projection *= Mat4::perspective(Mat4::radians(45.0f),
+                                      static_cast<float>(Common::SCR_WIDTH)
+                                        / static_cast<float>(Common::SCR_HEIGHT),
+                                      0.1f,
+                                      100.0f);
       
       // GPUに渡す
       // 使用するshaderprogramを指定し、作った行列をuniformに送る
@@ -70,7 +73,6 @@ int main(int argc, char **argv)
   
       // 描画
       glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);  // mode設定
-      // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);  // mode設定
       obj.draw();
   
       // swap buffers and poll IO events
