@@ -48,11 +48,13 @@ int main(int argc, char **argv)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   
+    bool  useTexture = false;
+
     // レンダリングループ
     while (!glfwWindowShouldClose(window.getWindow()))
     {
       // キー操作
-      window.processInput(operation);
+      window.processInput(operation, useTexture);
   
       // 背景色
       glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -76,6 +78,7 @@ int main(int argc, char **argv)
       ourShader.setMat4("model", model);
       ourShader.setMat4("view", view);
       ourShader.setMat4("projection", projection);
+      ourShader.setBool("useTexture", useTexture);
   
       // 描画mode設定
       glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

@@ -1,6 +1,7 @@
 #include "gl/Window.hpp"
 
-Window::Window() : window_(NULL)
+Window::Window()
+ : window_(NULL), tPressed_(false)
 {
 // reset cwd
 #ifdef __APPLE__
@@ -55,7 +56,7 @@ GLFWwindow*  Window::getWindow() const
   return (window_);
 }
 
-void Window::processInput(Operation& operation)
+void Window::processInput(Operation& operation, bool& useTexture)
 {
   // esc
 	if (glfwGetKey(window_, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -105,6 +106,20 @@ void Window::processInput(Operation& operation)
   // [X] 縮小
   if (glfwGetKey(window_, GLFW_KEY_X) == GLFW_PRESS)
     operation.scale(0.99f);
+  
+  // [T] Textureとプレーンの切り替え、1回雄ごとの処理
+  if (glfwGetKey(window_, GLFW_KEY_T) == GLFW_PRESS)
+  {
+    if (!tPressed_)
+    {
+      useTexture = !useTexture; // 反転させる
+      tPressed_ = true;
+    }
+  }
+  else
+  {
+    tPressed_ = false;
+  }
 }
 
 // ウィンドウのサイズが変更されるたびに呼び出されるコールバック関数

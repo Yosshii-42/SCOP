@@ -11,6 +11,7 @@
 class Window {
 private:
   GLFWwindow* window_;
+  bool        tPressed_;
 
   static void framebufferSizeCallback(
     GLFWwindow* window, int width, int height);
@@ -22,5 +23,5 @@ public:
   Window& operator=(const Window&) = delete;
   
   GLFWwindow* getWindow() const;
-  void processInput(Operation& operation);
+  void processInput(Operation& operation, bool& useTexture);
 };
