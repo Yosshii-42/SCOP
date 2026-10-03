@@ -1,8 +1,10 @@
 #include "gl/Object.hpp"
 
 Object::Object(const std::vector<float>& vertices,
-               const std::vector<std::vector<unsigned int> >& faces)
-              : vertices_(vertices), faces_(faces), VAO_(0), VBO_(0)
+               const std::vector<std::vector<unsigned int> >& faces,
+               const Common::Bounds& bounds,
+               UVMode mode)
+  : vertices_(vertices), faces_(faces), bounds_(bounds), uvMode_(mode), VAO_(0), VBO_(0)
 {
   setVertexData();
 }
@@ -39,12 +41,41 @@ void  Object::setVertexData()
 
 void  Object::addVertexData(unsigned int index, float gray)
 {
+  float x = vertices_[index * 3];
+  float y = vertices_[index * 3 + 1];
+  float z = vertices_[index * 3 + 2];
+
+  float u;
+  float v;
+
+  switch (uvMode_)
+  {
+    case UV_XY:
+      u = (x - bounds_.minX) / (bounds_.maxX - bounds_.minX);
+      v = (y - bounds_.minY) / (bounds_.maxY - bounds_.minY);
+      break;
+    
+    case UV_YZ:
+      v = (y - bounds_.minY) / (bounds_.maxY - bounds_.minY);
+      u = (z - bounds_.minZ) / (bounds_.maxZ - bounds_.minZ);
+      break;
+
+    case UV_ZX:
+      v = (z - bounds_.minZ) / (bounds_.maxZ - bounds_.minZ);
+      u = (x - bounds_.minX) / (bounds_.maxX - bounds_.minX);
+      break;
+  }
+
   vertexData_.push_back(vertices_[index * 3]);      // x
   vertexData_.push_back(vertices_[index * 3 + 1]);  // y
   vertexData_.push_back(vertices_[index * 3 + 2]);  // z
+
   vertexData_.push_back(gray);                      // r
   vertexData_.push_back(gray);                      // g
   vertexData_.push_back(gray);                      // b
+  
+  vertexData_.push_back(u);                         // u
+  vertexData_.push_back(v);                         // v
 }
 
 void  Object::setupGPU()
@@ -69,7 +100,7 @@ void  Object::setupGPU()
                         3,                  // x, y, z の3要素
                         GL_FLOAT,
                         GL_FALSE,
-                        6 * sizeof(float),  // 次の頂点まで6 float
+                        8 * sizeof(float),  // 次の頂点まで8 float
                         (void*)0);          // 先頭から読む
   glEnableVertexAttribArray(0);
 
@@ -78,23 +109,29 @@ void  Object::setupGPU()
                         3,
                         GL_FLOAT,
                         GL_FALSE,
-                        6 * sizeof(float),
+                        8 * sizeof(float),
                         (void*)(3 * sizeof(float)));
   glEnableVertexAttribArray(1);
 
   // location = 2 = uv座標
-  // glVertexAttribPointer(2,
-  //                       2,
-  //                       GL_FLOAT,
-  //                       GL_FALSE,
-  //                       5 * sizeof(float),
-  //                       (void*)(3 * sizeof(float)));
-  // glEnableVertexAttribArray(2);
+  glVertexAttribPointer(2,
+                        2,
+                        GL_FLOAT,
+                        GL_FALSE,
+                        8 * sizeof(float),
+                        (void*)(6 * sizeof(float)));
+  glEnableVertexAttribArray(2);
 
   // unbind VBO_
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   // unbind VAO_
   glBindVertexArray(0);
+}
+
+void  Object::setUVMode(UVMode mode)
+{
+  uvMode_ = mode;
+
 }
 
 void  Object::draw() const
@@ -103,7 +140,7 @@ void  Object::draw() const
 
   glDrawArrays(GL_TRIANGLES,
                0,
-               static_cast<GLsizei>(vertexData_.size() / 6));
+               static_cast<GLsizei>(vertexData_.size() / 8));
 
   glBindVertexArray(0);
 }

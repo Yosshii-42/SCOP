@@ -20,20 +20,27 @@ int main(int argc, char **argv)
   Tokenizer tokenizer(argv[1]);
   
   {
-    Window window;                              // window作成
-    glEnable(GL_DEPTH_TEST);                    // 深度テストを有効にする
-    Shader  ourShader("shaders/vertex.glsl",    // shaderをインスタンス化
+    // window作成
+    Window window;
+
+    // 深度テストを有効にする
+    glEnable(GL_DEPTH_TEST);
+
+    // shaderをインスタンス化
+    Shader  ourShader("shaders/vertex.glsl",
                       "shaders/fragment.glsl");
 
-    // 頂点データを取得
-    std::vector<float>                     vertices = tokenizer.getVertices();
-    // std::vector<float>                  vertexUVs = tokenizer.getVertexUVs();
-    std::vector<std::vector<unsigned int>> faces = tokenizer.getFaces();
-  
-    Object  obj(vertices, faces);               // VAO,VBO設定
+    // VAO,VBO,bounds,uv面設定
+    Object  obj(tokenizer.getVertices(),
+                tokenizer.getFaces(),
+                tokenizer.getBounds(),
+                Object::UV_YZ);
     obj.setupGPU();
-    // Texture texture("img/wall.jpg");            // texture読み込み
-  
+
+    // texture読み込み
+    Texture texture("img/wall.jpg");
+
+    // 物体を初期ポジションに置く
     Vec3  center = tokenizer.getCenter();
     Operation operation(center);
     operation.scale(0.3f);
@@ -44,14 +51,14 @@ int main(int argc, char **argv)
     // レンダリングループ
     while (!glfwWindowShouldClose(window.getWindow()))
     {
-      window.processInput(operation);                    // IO
+      // キー操作
+      window.processInput(operation);
   
-      // render
+      // 背景色
       glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   
-      // glBindTexture(GL_TEXTURE_2D, texture);
-      // texture.bind();
+      texture.bind();
 
       // CPU側で変換行列を作る
       Mat4  model = operation.getModelMatrix();
@@ -64,15 +71,14 @@ int main(int argc, char **argv)
                                       0.1f,
                                       100.0f);
       
-      // GPUに渡す
-      // 使用するshaderprogramを指定し、作った行列をuniformに送る
+      // GPUに渡す / 使用するshaderprogramを指定し、作った行列をuniformに送る
       ourShader.use();
       ourShader.setMat4("model", model);
       ourShader.setMat4("view", view);
       ourShader.setMat4("projection", projection);
   
-      // 描画
-      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);  // mode設定
+      // 描画mode設定
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
       obj.draw();
   
       // swap buffers and poll IO events
@@ -80,7 +86,7 @@ int main(int argc, char **argv)
       glfwPollEvents();
     }
 
-  } // obj→shader→windowの順番でデストラクタが呼ばれる
+  } // Operation->Texture->Object->Shader->Windlwの順番でデストラクタが呼ばれる
 
   // glfw: terminate, clean all GLFW resources
 	glfwTerminate();

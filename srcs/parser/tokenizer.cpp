@@ -1,14 +1,14 @@
 #include "parser/tokenizer.hpp"
 
 Tokenizer::Tokenizer(const std::string& fileName)
-  : fileName_(fileName), isFirstVertex_(true) {
+  : isFirstVertex_(true)
+{
     std::ifstream file(fileName.c_str());
     if (!file) {
         throw(std::runtime_error("Failed to open file: " + fileName));
     }
     tokenize(file);
     makeCenter();
-    setUVDatas();
 }
 
 Tokenizer::~Tokenizer() {}
@@ -55,40 +55,22 @@ void  Tokenizer::setVertices(std::istringstream& iss)
   vertices_.push_back(y);
   vertices_.push_back(z);
 
+  // min, maxを更新する
   if (isFirstVertex_)
   {
-    minX_ = maxX_ = x;
-    minY_ = maxY_ = y;
-    minZ_ = maxZ_ = z;
+    bounds_.minX = bounds_.maxX = x;
+    bounds_.minY = bounds_.maxY = y;
+    bounds_.minZ = bounds_.maxZ = z;
     isFirstVertex_ = false;
   }
   else
   {
-    minX_ = std::min(minX_, x);
-    maxX_ = std::max(maxX_, x);
-    minY_ = std::min(minY_, y);
-    maxY_ = std::max(maxY_, y);
-    minZ_ = std::min(minZ_, z);
-    maxZ_ = std::max(maxZ_, z);
-  }
-}
-
-void  Tokenizer::setUVDatas()
-{
-  for (std::vector<float>::iterator it = vertices_.begin();
-                                    it != vertices_.end();
-                                    it += 3)
-  {
-    float x = *it;
-    float y = *(it + 1);
-    float z = *(it + 2);
-    float u = (y - minY_) / (maxY_ - minY_);
-    float v = (z - minZ_) / (maxZ_ - minZ_);
-    vertexDatas_.push_back(x);
-    vertexDatas_.push_back(y);
-    vertexDatas_.push_back(z);
-    vertexDatas_.push_back(u);
-    vertexDatas_.push_back(v);
+    bounds_.minX = std::min(bounds_.minX, x);
+    bounds_.maxX = std::max(bounds_.maxX, x);
+    bounds_.minY = std::min(bounds_.minY, y);
+    bounds_.maxY = std::max(bounds_.maxY, y);
+    bounds_.minZ = std::min(bounds_.minZ, z);
+    bounds_.maxZ = std::max(bounds_.maxZ, z);
   }
 }
 
@@ -103,29 +85,29 @@ void  Tokenizer::setFaces(std::istringstream& iss)
   faces_.push_back(face);
 }
 
-const std::vector<float>  Tokenizer::getVertices()
+const std::vector<float>&  Tokenizer::getVertices() const
 {
   return (this->vertices_);
 }
 
-const std::vector<float>  Tokenizer::getVertexUVs()
-{
-  return (this->vertexDatas_);
-}
-
-const std::vector<std::vector<unsigned int>>  Tokenizer::getFaces()
+const std::vector<std::vector<unsigned int>>&  Tokenizer::getFaces() const
 {
   return (this->faces_);
 }
 
-Vec3  Tokenizer::getCenter()
+const Common::Bounds&  Tokenizer::getBounds() const
+{
+  return (bounds_);
+}
+
+Vec3  Tokenizer::getCenter() const
 {
   return (center_);
 }
 
 void  Tokenizer::makeCenter()
 {
-  center_.x = (minX_ + maxX_) / 2.0;
-  center_.y = (minY_ + maxY_) / 2.0;
-  center_.z = (minZ_ + maxZ_) / 2.0;
+  center_.x = (bounds_.minX + bounds_.maxX) / 2.0;
+  center_.y = (bounds_.minY + bounds_.maxY) / 2.0;
+  center_.z = (bounds_.minZ + bounds_.maxZ) / 2.0;
 }
