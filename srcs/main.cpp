@@ -45,19 +45,19 @@ int main(int argc, char **argv)
     Operation operation(center);
     operation.scale(0.3f);
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);                                 // ブレンディングを有効にする
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // どうブレンドするかを指定する
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);               // 背景色
   
     bool  useTexture = false;
 
     // レンダリングループ
-    while (!glfwWindowShouldClose(window.getWindow()))
+    while (!window.shouldClose())
     {
       // キー操作
       window.processInput(operation, useTexture);
   
-      // 背景色
-      glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+      // 毎フレーム画面と進度バッファをクリア
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   
       texture.bind();
@@ -68,8 +68,7 @@ int main(int argc, char **argv)
       view *= Mat4::translate(0.0f, 0.0f, -3.0f);
       Mat4  projection;
       projection *= Mat4::perspective(Mat4::radians(45.0f),
-                                      static_cast<float>(Common::SCR_WIDTH)
-                                        / static_cast<float>(Common::SCR_HEIGHT),
+                                      window.getAspectRatio(),
                                       0.1f,
                                       100.0f);
       

@@ -1,7 +1,7 @@
 #include "gl/Window.hpp"
 
 Window::Window()
- : window_(NULL), tPressed_(false)
+ : window_(NULL), width_(Common::DEFAULT_WIDTH), height_(Common::DEFAULT_HEIGHT), tPressed_(false)
 {
 // reset cwd
 #ifdef __APPLE__
@@ -20,9 +20,9 @@ glfwInitHint(GLFW_COCOA_CHDIR_RESOURCES, GLFW_FALSE);
 
 	// glfw: window creation
   // ---------------------
-  window_ = glfwCreateWindow(Common::SCR_WIDTH,
-                             Common::SCR_HEIGHT,
-                             "LearnOpenGL",
+  window_ = glfwCreateWindow(width_,
+                             height_,
+                             "SCOP",
                              NULL,
                              NULL);
 	if (window_ == NULL)
@@ -31,6 +31,7 @@ glfwInitHint(GLFW_COCOA_CHDIR_RESOURCES, GLFW_FALSE);
     throw std::runtime_error("Failed to create GLFW window");
 	}
 	glfwMakeContextCurrent(window_);
+  glfwSetWindowUserPointer(window_, this);
   glfwSetFramebufferSizeCallback(window_, Window::framebufferSizeCallback);
 
 	// glad: OpenGL関数を呼び出す前にGLADを初期化する
@@ -42,6 +43,12 @@ glfwInitHint(GLFW_COCOA_CHDIR_RESOURCES, GLFW_FALSE);
     throw std::runtime_error("Failed to initialize GLAD");
 	}
 
+  int framebufferWidth;
+  int framebufferHeight;
+  glfwGetFramebufferSize(window_, &framebufferWidth, &framebufferHeight);
+  width_ = framebufferWidth;
+  height_ = framebufferHeight;
+  glViewport(0, 0, width_, height_);
 }
 
 Window::~Window() 
@@ -122,12 +129,31 @@ void Window::processInput(Operation& operation, bool& useTexture)
   }
 }
 
-// ウィンドウのサイズが変更されるたびに呼び出されるコールバック関数
-void Window::framebufferSizeCallback(GLFWwindow *window, int width, int height)
+bool  Window::shouldClose() const
 {
-	(void)window;
+  return glfwWindowShouldClose(window_);
+}
+
+float Window::getAspectRatio() const
+{
+  if (height_ == 0)
+    return 1.0f;
+  
+  return static_cast<float>(width_) / static_cast<float>(height_);
+}
+
+// ウィンドウのサイズが変更されるたびに呼び出されるコールバック関数
+void  Window::framebufferSizeCallback(GLFWwindow *window, int width, int height)
+{
+	// (void)window;
 
   // OpenGLにレンダリングウィンドウのサイズを伝える
 	// 最初の２つの引数でウィンドウの左下隅の位置を設定する
 	glViewport(0, 0, width, height);
+  Window* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
+  if (self == NULL)
+    return ;
+  self->width_ = width;
+  self->height_ = height;
 }
+

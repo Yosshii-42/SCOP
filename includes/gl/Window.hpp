@@ -11,10 +11,13 @@
 class Window {
 private:
   GLFWwindow* window_;
+  int         width_;
+  int         height_;
   bool        tPressed_;
 
-  static void framebufferSizeCallback(
-    GLFWwindow* window, int width, int height);
+  static void framebufferSizeCallback(GLFWwindow* window,
+                                      int width,
+                                      int height);
     
 public:
   Window();
@@ -23,5 +26,7 @@ public:
   Window& operator=(const Window&) = delete;
   
   GLFWwindow* getWindow() const;
-  void processInput(Operation& operation, bool& useTexture);
+  void  processInput(Operation& operation, bool& useTexture);
+  bool  shouldClose() const;
+  float getAspectRatio() const;
 };
