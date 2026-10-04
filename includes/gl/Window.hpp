@@ -6,7 +6,7 @@
 #include <iostream>
 
 #include "Common.hpp"
-#include "gl/Operation.hpp"
+#include "gl/Manipulator.hpp"
 
 class Window {
 private:
@@ -26,7 +26,7 @@ public:
   Window& operator=(const Window&) = delete;
   
   GLFWwindow* getWindow() const;
-  void  processInput(Operation& operation, bool& useTexture);
+  void  processInput(Manipulator& Manipulator, bool& useTexture);
   bool  shouldClose() const;
   float getAspectRatio() const;
 };

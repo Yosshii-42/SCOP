@@ -1,51 +1,51 @@
-#include "gl/Operation.hpp"
+#include "gl/Manipulator.hpp"
 
-Operation::Operation(const Vec3& center)
+Manipulator::Manipulator(const Vec3& center)
   : center_(center),
     rotation_(0.0f, 0.0f, 0.0f),
     position_(0.0f, 0.0f, 0.0f),
     scale_(1.0f, 1.0f, 1.0f)
 {}
 
-Operation::~Operation() {}
+Manipulator::~Manipulator() {}
 
-void  Operation::rotateX(float angle)
+void  Manipulator::rotateX(float angle)
 {
   rotation_.x += angle;
 }
 
-void  Operation::rotateY(float angle)
+void  Manipulator::rotateY(float angle)
 {
   rotation_.y += angle;
 }
 
-void  Operation::rotateZ(float angle)
+void  Manipulator::rotateZ(float angle)
 {
   rotation_.z += angle;;
 }
 
-void  Operation::translateX(float trans)
+void  Manipulator::translateX(float trans)
 {
   position_.x += trans;
 }
 
-void  Operation::translateY(float trans)
+void  Manipulator::translateY(float trans)
 {
   position_.y += trans;
 }
 
-void  Operation::translateZ(float trans)
+void  Manipulator::translateZ(float trans)
 {
   position_.z += trans;
 }
 
-void  Operation::scale(float scale)
+void  Manipulator::scale(float scale)
 {
   scale_ *= scale;
 }
 
 // scale, rotate, translateの順番でmodel用Mat4を作成する
-Mat4  Operation::getModelMatrix() const
+Mat4  Manipulator::getModelMatrix() const
 {
   Mat4  model;
 

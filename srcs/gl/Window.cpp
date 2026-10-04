@@ -63,7 +63,7 @@ GLFWwindow*  Window::getWindow() const
   return (window_);
 }
 
-void Window::processInput(Operation& operation, bool& useTexture)
+void Window::processInput(Manipulator& manipulator, bool& useTexture)
 {
   // esc
 	if (glfwGetKey(window_, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -71,48 +71,48 @@ void Window::processInput(Operation& operation, bool& useTexture)
 
   // [→] 右回転
   if (glfwGetKey(window_, GLFW_KEY_RIGHT) == GLFW_PRESS)
-    operation.rotateY(Mat4::radians(1.0f));
+    manipulator.rotateY(Mat4::radians(1.0f));
   // [←] 左回転
   if (glfwGetKey(window_, GLFW_KEY_LEFT ) == GLFW_PRESS)
-    operation.rotateY(Mat4::radians(-1.0f));
+    manipulator.rotateY(Mat4::radians(-1.0f));
   // [↑] x軸上回転
   if (glfwGetKey(window_, GLFW_KEY_UP) == GLFW_PRESS)
-    operation.rotateX(Mat4::radians(-1.0f));
+    manipulator.rotateX(Mat4::radians(-1.0f));
   // [↓] x軸下回転
   if (glfwGetKey(window_, GLFW_KEY_DOWN) == GLFW_PRESS)
-    operation.rotateX(Mat4::radians(1.0f));
+    manipulator.rotateX(Mat4::radians(1.0f));
   // [Q] z軸右回転
   if (glfwGetKey(window_, GLFW_KEY_Q) == GLFW_PRESS)
-    operation.rotateZ(Mat4::radians(1.0f));
+    manipulator.rotateZ(Mat4::radians(1.0f));
   // [E] z軸左回転
   if (glfwGetKey(window_, GLFW_KEY_E) == GLFW_PRESS)
-    operation.rotateZ(Mat4::radians(-1.0f));
+    manipulator.rotateZ(Mat4::radians(-1.0f));
   
   // [R] 上移動
   if (glfwGetKey(window_, GLFW_KEY_R) == GLFW_PRESS)
-    operation.translateY(0.01f);
+    manipulator.translateY(0.01f);
   // [F] 下移動
   if (glfwGetKey(window_, GLFW_KEY_F) == GLFW_PRESS)
-    operation.translateY(-0.01f);
+    manipulator.translateY(-0.01f);
   // [A] 左移動
   if (glfwGetKey(window_, GLFW_KEY_A) == GLFW_PRESS)
-    operation.translateX(-0.01f);
+    manipulator.translateX(-0.01f);
   // [D] 右移動
   if (glfwGetKey(window_, GLFW_KEY_D) == GLFW_PRESS)
-    operation.translateX(0.01f);
+    manipulator.translateX(0.01f);
   // [W] 前へ移動
   if (glfwGetKey(window_, GLFW_KEY_W) == GLFW_PRESS)
-    operation.translateZ(0.01f);
+    manipulator.translateZ(0.01f);
   // [S] 後ろへ移動
   if (glfwGetKey(window_, GLFW_KEY_S) == GLFW_PRESS)
-    operation.translateZ(-0.01f);
+    manipulator.translateZ(-0.01f);
 
   // [Z] 拡大
   if (glfwGetKey(window_, GLFW_KEY_Z) == GLFW_PRESS)
-    operation.scale(1.01f);
+    manipulator.scale(1.01f);
   // [X] 縮小
   if (glfwGetKey(window_, GLFW_KEY_X) == GLFW_PRESS)
-    operation.scale(0.99f);
+    manipulator.scale(0.99f);
   
   // [T] Textureとプレーンの切り替え、1回雄ごとの処理
   if (glfwGetKey(window_, GLFW_KEY_T) == GLFW_PRESS)

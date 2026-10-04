@@ -4,7 +4,7 @@
 #include "math/Vec4.hpp"
 #include "math/Vec3.hpp"
 
-class Operation {
+class Manipulator {
 private:
   Vec3  center_;
   Vec3  rotation_;
@@ -12,8 +12,8 @@ private:
   Vec3  scale_;
 
 public:
-  Operation(const Vec3& center);
-  ~Operation();
+  Manipulator(const Vec3& center);
+  ~Manipulator();
 
   void  rotateX(float angle);
   void  rotateY(float angle);

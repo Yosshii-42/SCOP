@@ -9,7 +9,7 @@
 #include "gl/Window.hpp"
 #include "gl/Object.hpp"
 #include "gl/Texture.hpp"
-#include "gl/Operation.hpp"
+#include "gl/Manipulator.hpp"
 #include "math/Mat4.hpp"
 #include "math/Vec3.hpp"
 #include "math/Vec4.hpp"
@@ -42,8 +42,8 @@ int main(int argc, char **argv)
 
     // 物体を初期ポジションに置く
     Vec3  center = tokenizer.getCenter();
-    Operation operation(center);
-    operation.scale(0.3f);
+    Manipulator manipulator(center);
+    manipulator.scale(0.3f);
 
     glEnable(GL_BLEND);                                 // ブレンディングを有効にする
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // どうブレンドするかを指定する
@@ -55,7 +55,7 @@ int main(int argc, char **argv)
     while (!window.shouldClose())
     {
       // キー操作
-      window.processInput(operation, useTexture);
+      window.processInput(manipulator, useTexture);
   
       // 毎フレーム画面と進度バッファをクリア
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -63,7 +63,7 @@ int main(int argc, char **argv)
       texture.bind();
 
       // CPU側で変換行列を作る
-      Mat4  model = operation.getModelMatrix();
+      Mat4  model = manipulator.getModelMatrix();
       Mat4  view;
       view *= Mat4::translate(0.0f, 0.0f, -3.0f);
       Mat4  projection;
@@ -88,7 +88,7 @@ int main(int argc, char **argv)
       glfwPollEvents();
     }
 
-  } // Operation->Texture->Object->Shader->Windlwの順番でデストラクタが呼ばれる
+  } // Manipulator->Texture->Object->Shader->Windlwの順番でデストラクタが呼ばれる
 
   // glfw: terminate, clean all GLFW resources
 	glfwTerminate();
