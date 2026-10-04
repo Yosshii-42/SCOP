@@ -26,7 +26,9 @@ public:
   Window& operator=(const Window&) = delete;
   
   GLFWwindow* getWindow() const;
-  void  processInput(Manipulator& Manipulator, bool& useTexture);
+  void  processInput(Manipulator& Manipulator,
+                     bool& useTexture,
+                     float& textureScale);
   bool  shouldClose() const;
   float getAspectRatio() const;
 };

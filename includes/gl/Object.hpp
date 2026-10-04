@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "Common.hpp"
+#include "math/Vec3.hpp"
 
 class Object {
 public:
@@ -23,8 +24,10 @@ public:
   unsigned int  VAO_;
   unsigned int  VBO_;
   
-  void  setVertexData();
-  void  addVertexData(unsigned int index, float gray);
+  void    setVertexData();
+  Vec3    getVertex(unsigned int index) const;
+  UVMode  getUVMode(const std::vector<unsigned int>& face) const;
+  void    addVertexData(unsigned int index, float gray, UVMode uvMode);
   
 public:
   Object(const std::vector<float>& vertices,

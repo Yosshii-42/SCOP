@@ -63,7 +63,9 @@ GLFWwindow*  Window::getWindow() const
   return (window_);
 }
 
-void Window::processInput(Manipulator& manipulator, bool& useTexture)
+void Window::processInput(Manipulator& manipulator,
+                          bool& useTexture,
+                          float& textureScale)
 {
   // esc
 	if (glfwGetKey(window_, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -127,6 +129,14 @@ void Window::processInput(Manipulator& manipulator, bool& useTexture)
   {
     tPressed_ = false;
   }
+
+  // [C] Textureを細かくする
+  if (glfwGetKey(window_, GLFW_KEY_C) == GLFW_PRESS)
+    textureScale *= 1.01f;
+
+  // [V] Textureを大きくする
+  if (glfwGetKey(window_, GLFW_KEY_V) == GLFW_PRESS)
+    textureScale *= 0.99f;
 }
 
 bool  Window::shouldClose() const

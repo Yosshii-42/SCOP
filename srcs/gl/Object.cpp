@@ -7,6 +7,7 @@ Object::Object(const std::vector<float>& vertices,
   : vertices_(vertices), faces_(faces), bounds_(bounds), uvMode_(mode), VAO_(0), VBO_(0)
 {
   setVertexData();
+  (void)bounds_;
 }
 
 Object::~Object()
@@ -21,9 +22,14 @@ void  Object::setVertexData()
   {
     const std::vector<unsigned int>& face = faces_[i];
     if (face.size() < 3)
-      throw std::runtime_error("Face size error"); 
+      throw std::runtime_error("Face size error");
+
+    // faceのUVModeを取得する
+    UVMode  uvMode = getUVMode(face);
+
     // float gray = 0.5f + (i % 4) * 0.15f; // 規則的な模様が出る
     float gray = 0.3f + static_cast<float>(std::rand() % 46) / 100.0f; // ランダムな模様が出る
+
     for (size_t j = 1; j + 1 < face.size(); ++j)
     {
       // 3つの頂点のface番号を取得する
@@ -32,14 +38,48 @@ void  Object::setVertexData()
       unsigned int  index3 = face[j + 1] - 1;
 
       // face番号を元に、3つの頂点の座興データを取得し、vertexData_にpush_backする
-      addVertexData(index1, gray);
-      addVertexData(index2, gray);
-      addVertexData(index3, gray);
+      addVertexData(index1, gray, uvMode);
+      addVertexData(index2, gray, uvMode);
+      addVertexData(index3, gray, uvMode);
     }
   }
 }
 
-void  Object::addVertexData(unsigned int index, float gray)
+// face[i]の頂点座標をVec3で得る
+Vec3  Object::getVertex(unsigned int index) const
+{
+  return (Vec3(vertices_[index * 3],
+               vertices_[index * 3 + 1],
+               vertices_[index * 3 + 2]
+              ));
+}
+
+// faceのUV面を決める
+Object::UVMode  Object::getUVMode(const std::vector<unsigned int>& face) const
+{
+  // faces_[i]の法線ベクトルを求める
+  Vec3  p0 = getVertex(face[0] - 1);
+  Vec3  p1 = getVertex(face[1] - 1);
+  Vec3  p2 = getVertex(face[2] - 1);
+  Vec3  p0_p1 = p1 - p0;
+  Vec3  p0_p2 = p2 - p0;
+  Vec3  normal = p0_p1.cross(p0_p2).normalize();
+
+  // x, y, zの最大と成分を求める
+  float absX = std::fabs(normal.x);
+  float absY = std::fabs(normal.y);
+  float absZ = std::fabs(normal.z);
+
+  // UV面を決める
+  if (absX >= absY && absX >= absZ)
+    return (UV_YZ);
+  else if (absY >= absX && absY >= absZ)
+    return (UV_ZX);
+  else
+    return (UV_XY);
+}
+
+void  Object::addVertexData(unsigned int index, float gray, UVMode uvMode)
 {
   float x = vertices_[index * 3];
   float y = vertices_[index * 3 + 1];
@@ -48,34 +88,34 @@ void  Object::addVertexData(unsigned int index, float gray)
   float u;
   float v;
 
-  switch (uvMode_)
+  switch (uvMode)
   {
     case UV_XY:
-      u = (x - bounds_.minX) / (bounds_.maxX - bounds_.minX);
-      v = (y - bounds_.minY) / (bounds_.maxY - bounds_.minY);
+      u = x;//(x - bounds_.minX) / (bounds_.maxX - bounds_.minX);
+      v = y;//(y - bounds_.minY) / (bounds_.maxY - bounds_.minY);
       break;
     
     case UV_YZ:
-      v = (y - bounds_.minY) / (bounds_.maxY - bounds_.minY);
-      u = (z - bounds_.minZ) / (bounds_.maxZ - bounds_.minZ);
+      v = y;//(y - bounds_.minY) / (bounds_.maxY - bounds_.minY);
+      u = z;//(z - bounds_.minZ) / (bounds_.maxZ - bounds_.minZ);
       break;
 
     case UV_ZX:
-      v = (z - bounds_.minZ) / (bounds_.maxZ - bounds_.minZ);
-      u = (x - bounds_.minX) / (bounds_.maxX - bounds_.minX);
+      v = z;//(z - bounds_.minZ) / (bounds_.maxZ - bounds_.minZ);
+      u = x;//(x - bounds_.minX) / (bounds_.maxX - bounds_.minX);
       break;
   }
 
-  vertexData_.push_back(vertices_[index * 3]);      // x
-  vertexData_.push_back(vertices_[index * 3 + 1]);  // y
-  vertexData_.push_back(vertices_[index * 3 + 2]);  // z
+  vertexData_.push_back(x);
+  vertexData_.push_back(y);
+  vertexData_.push_back(z);
 
-  vertexData_.push_back(gray);                      // r
-  vertexData_.push_back(gray);                      // g
-  vertexData_.push_back(gray);                      // b
+  vertexData_.push_back(gray); // r
+  vertexData_.push_back(gray); // g
+  vertexData_.push_back(gray); // b
   
-  vertexData_.push_back(u);                         // u
-  vertexData_.push_back(v);                         // v
+  vertexData_.push_back(u);
+  vertexData_.push_back(v);
 }
 
 void  Object::setupGPU()

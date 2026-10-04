@@ -39,6 +39,7 @@ int main(int argc, char **argv)
 
     // texture読み込み
     Texture texture("img/wall.jpg");
+    float   textureScale = 1.0f;
 
     // 物体を初期ポジションに置く
     Vec3  center = tokenizer.getCenter();
@@ -55,7 +56,7 @@ int main(int argc, char **argv)
     while (!window.shouldClose())
     {
       // キー操作
-      window.processInput(manipulator, useTexture);
+      window.processInput(manipulator, useTexture, textureScale);
   
       // 毎フレーム画面と進度バッファをクリア
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -78,6 +79,7 @@ int main(int argc, char **argv)
       ourShader.setMat4("view", view);
       ourShader.setMat4("projection", projection);
       ourShader.setBool("useTexture", useTexture);
+      ourShader.setFloat("textureScale", textureScale);
   
       // 描画mode設定
       glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
