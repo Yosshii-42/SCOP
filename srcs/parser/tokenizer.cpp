@@ -1,11 +1,11 @@
-#include "parser/tokenizer.hpp"
+#include "parser/Tokenizer.hpp"
 
 Tokenizer::Tokenizer(const std::string& fileName)
   : isFirstVertex_(true)
 {
     std::ifstream file(fileName.c_str());
     if (!file) {
-        throw(std::runtime_error("Failed to open file: " + fileName));
+        throw std::runtime_error("Failed to open file: " + fileName);
     }
     tokenize(file);
     makeCenter();

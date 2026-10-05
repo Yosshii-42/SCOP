@@ -1,7 +1,5 @@
 #include "gl/Texture.hpp"
-
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image/stb_image.h"
+#include "parser/BMP.hpp"
 
 Texture::Texture(const std::string& path)
   : id_(0)
@@ -16,9 +14,9 @@ Texture::Texture(const std::string& path)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   //loat and geterate the texture
-  int width, height, nrChannels;
-  unsigned char *data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
-  if (!data)
+  BMP bmp("img/wall.bmp");
+  const std::vector<unsigned char>& data = bmp.getData();
+  if (data.empty())
   {
     glDeleteTextures(1, &id_);
     id_ = 0;
@@ -28,15 +26,13 @@ Texture::Texture(const std::string& path)
   glTexImage2D(GL_TEXTURE_2D,
                0,
                GL_RGB,
-               width,
-               height,
+               bmp.getWidth(),
+               bmp.getHeight(),
                0,
                GL_RGB,
                GL_UNSIGNED_BYTE,
-               data);
+               data.data());
   glGenerateMipmap(GL_TEXTURE_2D); 
-  
-  stbi_image_free(data);
 
   glBindTexture(GL_TEXTURE_2D, 0);
 }

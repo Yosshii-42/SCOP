@@ -42,7 +42,8 @@ SRCS	= $(GLAD_DIR)/src/glad.c \
 				srcs/math/Vec2.cpp \
 				srcs/math/Vec3.cpp \
 				srcs/math/Vec4.cpp \
-				srcs/parser/tokenizer.cpp
+				srcs/parser/Tokenizer.cpp \
+				srcs/parser/BMP.cpp
 
 SRC_M  	= srcs/main.cpp
 SRC_B  	= srcs/main_bonus.cpp

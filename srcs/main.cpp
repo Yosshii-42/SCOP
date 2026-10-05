@@ -3,7 +3,8 @@
 #include <iostream>
 
 #include "utils/utils.hpp"
-#include "parser/tokenizer.hpp"
+#include "parser/Tokenizer.hpp"
+#include "parser/BMP.hpp"
 #include "Common.hpp"
 #include "gl/Shader.hpp"
 #include "gl/Window.hpp"
@@ -38,7 +39,7 @@ int main(int argc, char **argv)
     obj.setupGPU();
 
     // texture読み込み
-    Texture texture("img/wall.jpg");
+    Texture texture(argv[2]);
     float   textureScale = 1.0f;
 
     // 物体を初期ポジションに置く
