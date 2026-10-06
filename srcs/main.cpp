@@ -38,7 +38,7 @@ int main(int argc, char **argv)
   // objを初期ポジションに置く
   Vec3  center = tokenizer.getCenter();
   Manipulator manipulator(center);
-  manipulator.scale(0.3f);
+  // manipulator.scale(0.3f);
 
   // camera作成
   Camera  camera;
@@ -80,5 +80,3 @@ int main(int argc, char **argv)
  
 	return 0;
 }
-
-// スコープの中では、インスタンス化した逆順でデストラクタが呼ばれる

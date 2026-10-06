@@ -1,7 +1,10 @@
 #include "gl/Camera.hpp"
 
 Camera::Camera()
-  : distance_(3.0f), fov_(45.0f), near_(0.1f), far_(100.0f)
+  : distance_(Common::CAMERA_DISTANCE),
+    fov_(Common::CAMERA_FOV),
+    near_(Common::CAMERA_NEAR),
+    far_(Common::CAMERA_FAR)
 {}
 
 Camera::~Camera() {}

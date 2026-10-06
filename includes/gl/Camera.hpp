@@ -1,6 +1,7 @@
 #pragma once
 
 #include "math/Mat4.hpp"
+#include "Common.hpp"
 
 class Camera {
 private:
