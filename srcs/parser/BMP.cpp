@@ -51,8 +51,9 @@ BMP::BMP(const std::string& path)
   if (compression != 0)
     throw std::runtime_error("Compressed BMP is not supported");
   
-  size_t  rowSize = (width_ * 3 + 3) / 4 * 4; // 4の倍数まで切り上げる
-  size_t  padding = rowSize - width_ * 3;
+  // paddingを求める
+  size_t  size = (width_ * 3) % 4;
+  size_t  padding = (size == 0) ? 0 : (4 - size);
 
   file.seekg(pixelOffset, std::ios::beg);
   for (int y = 0; y < height_; ++y)
@@ -71,18 +72,8 @@ BMP::BMP(const std::string& path)
       data_.push_back(r);
       data_.push_back(g);
       data_.push_back(b);
-
-      // if (y == height_ / 2
-      //     && x >= width_ / 2
-      //     && x < width_ / 2 + 10)
-      // {
-      //   std::cout << "R=" << static_cast<int>(r)
-      //             << " G=" << static_cast<int>(g)
-      //             << " B=" << static_cast<int>(b)
-      //             << std::endl;
-      // }
     }
-    file.seekg(padding, std::ios::cur);
+    file.seekg(padding, std::ios::cur); // padding分進める
   }
 }
 // file.read(char* buffer, std::streamsize size);

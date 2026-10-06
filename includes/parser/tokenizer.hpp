@@ -3,7 +3,7 @@
 #include "math/Vec3.hpp"
 #include "Common.hpp"
 
-#include <stdbool.h>
+// #include <stdbool.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>

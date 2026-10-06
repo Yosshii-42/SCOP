@@ -2,7 +2,7 @@
 
 Manipulator::Manipulator(const Vec3& center)
   : center_(center),
-    rotation_(0.0f, 0.0f, 0.0f),
+    rotation_(),
     position_(0.0f, 0.0f, 0.0f),
     scale_(1.0f, 1.0f, 1.0f)
 {}
@@ -11,17 +11,17 @@ Manipulator::~Manipulator() {}
 
 void  Manipulator::rotateX(float angle)
 {
-  rotation_.x += angle;
+  rotation_ = Mat4::rotate(angle, Vec3(1.0f, 0.0f, 0.0f)) * rotation_;
 }
 
 void  Manipulator::rotateY(float angle)
 {
-  rotation_.y += angle;
+  rotation_ = Mat4::rotate(angle, Vec3(0.0f, 1.0f, 0.0f)) * rotation_;
 }
 
 void  Manipulator::rotateZ(float angle)
 {
-  rotation_.z += angle;
+  rotation_ = Mat4::rotate(angle, Vec3(0.0f, 0.0f, 1.0f)) * rotation_;
 }
 
 void  Manipulator::translateX(float trans)
@@ -53,9 +53,7 @@ Mat4  Manipulator::getModelMatrix() const
   model *= Mat4::translate(position_.x, position_.y, position_.z);
 
   // rotate
-  model *= Mat4::rotate(rotation_.x, Vec3(1.0f, 0.0f, 0.0f));
-  model *= Mat4::rotate(rotation_.y, Vec3(0.0f, 1.0f, 0.0f));
-  model *= Mat4::rotate(rotation_.z, Vec3(0.0f, 0.0f, 1.0f));
+  model *= rotation_;
 
   // 最初に適用したい　scale を最後に書く
   model *= Mat4::scale(scale_.x, scale_.y, scale_.z);

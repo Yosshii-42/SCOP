@@ -6,7 +6,7 @@
 class Manipulator {
 private:
   Vec3  center_;
-  Vec3  rotation_;
+  Mat4  rotation_;
   Vec3  position_;
   Vec3  scale_;
 

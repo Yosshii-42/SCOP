@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdexcept>
+// #include <stdexcept>
 #include <ostream>
 
 class Vec3 {

@@ -16,18 +16,20 @@ int main(int argc, char **argv)
 {
   Utils::checkArgv(argc, argv);
   Tokenizer tokenizer(argv[1]);
-  Window window;                // window作成
-
-  // 各種初期設定
+  
+  // window作成とOpenGL初期設定
+  Window window;
   glEnable(GL_DEPTH_TEST);                            // 深度テストを有効にする
   glEnable(GL_BLEND);                                 // ブレンディングを有効にする
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // どうブレンドするかを指定する
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);               // 背景色   
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);          // 描画mode設定
-
-  // shaderをインスタンス化
-  Shader  shader("shaders/vertex.glsl", "shaders/fragment.glsl");
-
+  
+  // textureを読み込み、OpenGL textureを作成
+  Texture texture(argv[2]);
+  float   textureScale = 1.0f;
+  bool    useTexture = false;
+   
   // objのデータ作成  VAO,VBO,bounds,uv面設定
   Object  obj(tokenizer.getVertices(),
               tokenizer.getFaces(),
@@ -38,17 +40,14 @@ int main(int argc, char **argv)
   // objを初期ポジションに置く
   Vec3  center = tokenizer.getCenter();
   Manipulator manipulator(center);
-  // manipulator.scale(0.3f);
-
+  
   // camera作成
   Camera  camera;
 
-  // texture読み込み
-  Texture texture(argv[2]);
-  float   textureScale = 1.0f;
-  bool    useTexture = false;
+  // shaderをインスタンス化
+  Shader  shader("shaders/vertex.glsl", "shaders/fragment.glsl");
 
-  // レンダリングループ
+  // レンダリングループ 
   while (!window.shouldClose())
   {
     // キー操作

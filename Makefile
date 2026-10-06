@@ -7,12 +7,12 @@ CC		= cc
 
 GLAD_DIR = includes/glad
 
-CXXFLAGS	= -Wall -Wextra -Werror -O3 -std=c++17 \
+CXXFLAGS	= -Wall -Wextra -Werror -std=c++17 \
 			  		-I./includes \
 			  		-I$(GLAD_DIR)/include \
 			  		-MMD -MP
 
-CFLAGS		= -Wall -Wextra -Werror -O3 \
+CFLAGS		= -Wall -Wextra -Werror \
 			  		-I./includes \
 			  		-I$(GLAD_DIR)/include
 
@@ -55,8 +55,11 @@ DEPS	= $(OBJS:.o=.d) \
 
 all: $(NAME)
 
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
 $(NAME): $(OBJS) $(OBJ_M)
-	$(CXX) $(CXXFLAGS) $(OBJS) $(OBJ_M) $(LIBS) -o $(NAME)
+	$(CXX) $(OBJS) $(OBJ_M) $(LIBS) -o $(NAME)
 
 $(GLAD_DIR)/src/%.o: $(GLAD_DIR)/src/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
