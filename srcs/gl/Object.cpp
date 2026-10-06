@@ -27,8 +27,8 @@ void  Object::setVertexData()
     // faceのUVModeを取得する
     UVMode  uvMode = getUVMode(face);
 
-    // float gray = 0.5f + (i % 4) * 0.15f; // 規則的な模様が出る
-    float gray = 0.3f + static_cast<float>(std::rand() % 46) / 100.0f; // ランダムな模様が出る
+    // float gray = 0.5f + (i % 4) * 0.15f; // 規則的
+    float gray = 0.3f + static_cast<float>(std::rand() % 46) / 100.0f; // ランダム
 
     for (size_t j = 1; j + 1 < face.size(); ++j)
     {
@@ -91,18 +91,18 @@ void  Object::addVertexData(unsigned int index, float gray, UVMode uvMode)
   switch (uvMode)
   {
     case UV_XY:
-      u = x;//(x - bounds_.minX) / (bounds_.maxX - bounds_.minX);
-      v = y;//(y - bounds_.minY) / (bounds_.maxY - bounds_.minY);
+      u = x - bounds_.minX; // textureの(0,0)を元にした座標を求める
+      v = y - bounds_.minY;
       break;
     
     case UV_YZ:
-      v = y;//(y - bounds_.minY) / (bounds_.maxY - bounds_.minY);
-      u = z;//(z - bounds_.minZ) / (bounds_.maxZ - bounds_.minZ);
+      v = y - bounds_.minY;
+      u = z - bounds_.minZ;
       break;
 
     case UV_ZX:
-      v = z;//(z - bounds_.minZ) / (bounds_.maxZ - bounds_.minZ);
-      u = x;//(x - bounds_.minX) / (bounds_.maxX - bounds_.minX);
+      v = z - bounds_.minZ;
+      u = x - bounds_.minX;
       break;
   }
 

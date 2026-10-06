@@ -24,6 +24,10 @@ public:
   Shader(const Shader&) = delete;
   Shader& operator=(const Shader&) = delete;
 
+  void  setMatrices(const Mat4& model,
+                    const Mat4& view,
+                    const Mat4& projection);
+
   // activate function
   void  use();
 

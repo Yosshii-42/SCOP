@@ -14,7 +14,7 @@ Texture::Texture(const std::string& path)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   //loat and geterate the texture
-  BMP bmp("img/wall.bmp");
+  BMP bmp(path);
   const std::vector<unsigned char>& data = bmp.getData();
   if (data.empty())
   {
@@ -23,6 +23,8 @@ Texture::Texture(const std::string& path)
     throw std::runtime_error("Failed to load Texture: " + path);
   }
   
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
   glTexImage2D(GL_TEXTURE_2D,
                0,
                GL_RGB,
@@ -32,7 +34,7 @@ Texture::Texture(const std::string& path)
                GL_RGB,
                GL_UNSIGNED_BYTE,
                data.data());
-  glGenerateMipmap(GL_TEXTURE_2D); 
+  glGenerateMipmap(GL_TEXTURE_2D);
 
   glBindTexture(GL_TEXTURE_2D, 0);
 }

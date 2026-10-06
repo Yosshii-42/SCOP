@@ -71,6 +71,16 @@ BMP::BMP(const std::string& path)
       data_.push_back(r);
       data_.push_back(g);
       data_.push_back(b);
+
+      // if (y == height_ / 2
+      //     && x >= width_ / 2
+      //     && x < width_ / 2 + 10)
+      // {
+      //   std::cout << "R=" << static_cast<int>(r)
+      //             << " G=" << static_cast<int>(g)
+      //             << " B=" << static_cast<int>(b)
+      //             << std::endl;
+      // }
     }
     file.seekg(padding, std::ios::cur);
   }

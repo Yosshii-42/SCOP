@@ -21,7 +21,7 @@ void  Manipulator::rotateY(float angle)
 
 void  Manipulator::rotateZ(float angle)
 {
-  rotation_.z += angle;;
+  rotation_.z += angle;
 }
 
 void  Manipulator::translateX(float trans)
@@ -44,7 +44,7 @@ void  Manipulator::scale(float scale)
   scale_ *= scale;
 }
 
-// scale, rotate, translateの順番でmodel用Mat4を作成する
+// 頂点に center補正 → scale → rotate → translate の順で適用する
 Mat4  Manipulator::getModelMatrix() const
 {
   Mat4  model;

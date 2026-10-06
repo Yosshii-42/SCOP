@@ -62,6 +62,13 @@ Shader::~Shader() {
   glDeleteProgram(ID_);
 }
 
+void  Shader::setMatrices(const Mat4& model, const Mat4& view, const Mat4& projection)
+{
+  setMat4("model", model);
+  setMat4("view", view);
+  setMat4("projection", projection);
+}
+
 // activate the shader
 void  Shader::use()
 {
