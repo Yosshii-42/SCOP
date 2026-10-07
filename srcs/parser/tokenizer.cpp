@@ -20,27 +20,22 @@ void  Tokenizer::tokenize(std::ifstream& file) {
     std::string         type;
 
     iss >> type;
-    if (type.empty())
-      continue;
-    if (type[0] == '#')
-      continue;
-    if (type == "mtllib") {
-      continue;
-      // TODO
-    } else if (type == "o") {
-      continue;
-      // TODO
-    } else if (type == "v") {   // 頂点座標を収納
+    if (type == "v")        // 頂点座標を収納
       setVertices(iss);
-    } else if (type == "usemtl") {
-      continue;
-      // TODO
-    } else if (type == "s") {
-      continue;
-      // TODO
-    } else if (type == "f") {   // 
+    else if (type == "f")   // face情報を取得 
       setFaces(iss);
-    }
+    else if (type == "vt"   // 今回非対応
+          || type == "vn"
+          || type == "s"
+          || type == "o"
+          || type == "g"
+          || type == "mtllib"
+          || type == "usemtl"
+          || type.empty()
+          || type[0] == '#')
+      continue;
+    else
+      throw std::runtime_error("Unsupported OBJ element: " + type);
   }
 }
 
