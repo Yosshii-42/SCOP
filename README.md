@@ -101,6 +101,9 @@ The object can be manipulated using the following keyboard controls:
 - [OpenGL Reference](https://registry.khronos.org/OpenGL/specs/gl/glspec33.core.pdf)
 - [GLAD](https://glad.dav1d.de)
 - [BMP file format](https://www.setsuki.com/hsp/ext/bmp.htm)
+- [Area of Polygon](https://gihyo.jp/dev/serial/01/geometry/0008)
+- [Ear Clipping Triangulation](https://qiita.com/fujii-kotaro/items/a411f2a45627ed2f156e)
+- [Checking Whether a Point Lies on a Triangle's Vertices](http://www.sousakuba.com/Programming/gs_hittest_point_triangle.html)
 
 ### AI Usage
 

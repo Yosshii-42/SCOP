@@ -5,6 +5,7 @@
 
 #include "Common.hpp"
 #include "math/Vec3.hpp"
+#include "math/Vec2.hpp"
 
 class Object {
 public:
@@ -25,9 +26,19 @@ public:
   unsigned int  VBO_;
   
   void    setVertexData();
+
+  void    addVertexData(unsigned int index, float gray, UVMode uvMode);
+  std::vector<unsigned int> triangulate(const std::vector<unsigned int>& face,
+                                         UVMode mode) const;
+  // utils functions
   Vec3    getVertex(unsigned int index) const;
   UVMode  getUVMode(const std::vector<unsigned int>& face) const;
-  void    addVertexData(unsigned int index, float gray, UVMode uvMode);
+  static Vec2 projectTo2D(const Vec3& vertex, Object::UVMode mode);
+  bool    containsPoint(const std::vector<Vec2>& points,
+                        const std::vector<unsigned int>& remaining,
+                        std::size_t pre,
+                        std::size_t cur,
+                        std::size_t next) const;
   
 public:
   Object(const std::vector<float>& vertices,
