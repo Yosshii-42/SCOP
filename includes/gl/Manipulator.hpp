@@ -2,6 +2,7 @@
 
 #include "math/Mat4.hpp"
 #include "math/Vec3.hpp"
+#include "gl/Instance.hpp"
 
 class Manipulator {
 private:
@@ -9,6 +10,8 @@ private:
   Mat4  rotation_;
   Vec3  position_;
   Vec3  scale_;
+  float instanceAngle_;
+  float randomRotationAngle_;
 
 public:
   Manipulator(const Vec3& center);
@@ -17,6 +20,8 @@ public:
   void  rotateX(float angle);
   void  rotateY(float angle);
   void  rotateZ(float angle);
+  void  rotateInstance(float angle);
+  void  rotateRandomAxis(float angle);
 
   void  translateX(float trans);
   void  translateY(float trans);
@@ -25,4 +30,5 @@ public:
   void  scale(float scale);
 
   Mat4  getModelMatrix() const;
+  Mat4  getModelMatrix(const Instance& instance) const;
 };

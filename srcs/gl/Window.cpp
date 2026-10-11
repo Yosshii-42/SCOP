@@ -1,7 +1,9 @@
 #include "gl/Window.hpp"
+#include "gl/Instance.hpp"
 
 Window::Window()
- : window_(NULL), width_(Common::DEFAULT_WIDTH), height_(Common::DEFAULT_HEIGHT), tPressed_(false)
+ : window_(NULL), width_(Common::DEFAULT_WIDTH), height_(Common::DEFAULT_HEIGHT),
+  tPressed_(false), pPressed_(false), kPressed_(false)
 {
 // reset cwd
 #ifdef __APPLE__
@@ -65,8 +67,13 @@ GLFWwindow*  Window::getWindow() const
 
 void Window::processInput(Manipulator& manipulator,
                           bool& useTexture,
-                          float& textureScale)
+                          float& textureScale,
+                          bool& addInstance,
+                          bool& resetInstances)
 {
+  addInstance = false;
+  resetInstances = false;
+
   // esc
 	if (glfwGetKey(window_, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window_, true);
@@ -137,6 +144,34 @@ void Window::processInput(Manipulator& manipulator,
   // [V] Textureを大きくする
   if (glfwGetKey(window_, GLFW_KEY_V) == GLFW_PRESS)
     textureScale *= 0.99f;
+
+  // [P] オブジェクトを増やす
+  if (glfwGetKey(window_, GLFW_KEY_P) == GLFW_PRESS)
+  {
+    if (!pPressed_)
+    {
+      pPressed_ = true;
+      addInstance = true;
+    }
+  }
+  else
+    pPressed_ = false;
+
+  // [k] オブジェクト数をリセットする
+  if (glfwGetKey(window_, GLFW_KEY_K) == GLFW_PRESS)
+  {
+    if (!kPressed_)
+    {
+      kPressed_ = true;
+      resetInstances = true;
+    }
+  }
+  else
+    kPressed_ = false;
+
+  // [Space] 個別回転
+  if (glfwGetKey(window_, GLFW_KEY_SPACE) == GLFW_PRESS)
+    manipulator.rotateRandomAxis(Mat4::radians(1.0f));
 }
 
 bool  Window::shouldClose() const

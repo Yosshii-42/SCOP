@@ -1,6 +1,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 
 #include "utils/utils.hpp"
 #include "parser/Tokenizer.hpp"
@@ -10,11 +12,13 @@
 #include "gl/Texture.hpp"
 #include "gl/Manipulator.hpp"
 #include "gl/Camera.hpp"
+#include "gl/Instance.hpp"
 #include "math/Vec3.hpp"
 #include "validate/MeshDiagnostics.hpp"
 
 int main(int argc, char **argv)
 {
+  std::srand(static_cast<unsigned int>(std::time(NULL)));
   Utils::checkArgv(argc, argv);
   Tokenizer tokenizer(argv[1]);
 
@@ -54,30 +58,43 @@ int main(int argc, char **argv)
   // shaderをインスタンス化
   Shader  shader("shaders/vertex.glsl", "shaders/fragment.glsl");
 
+  std::vector<Instance> instances;
+  Instance::setInstance(instances);
+  bool  addInstance;
+  bool  resetInstances;
+
   // レンダリングループ 
   while (!window.shouldClose())
   {
     // キー操作
-    window.processInput(manipulator, useTexture, textureScale);
+    window.processInput(manipulator, useTexture, textureScale,
+                        addInstance, resetInstances);
+    if (addInstance)
+      Instance::setInstance(instances);
+    if (resetInstances && instances.size() > 1)
+      instances.erase(instances.begin() + 1, instances.end());
 
     // 毎フレーム画面と深度バッファをクリア
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     texture.bind();
 
-    // CPU側で変換行列を作る
-    Mat4  model = manipulator.getModelMatrix();
-    Mat4  view = camera.getViewMatrix();
-    Mat4  projection = camera.getProjectionMatrix(window.getAspectRatio());
-    
     // GPUに渡す / 使用するshaderprogramを指定し、作った行列をuniformに送る
     shader.use();
-    shader.setMatrices(model, view, projection);
     shader.setBool("useTexture", useTexture);
     shader.setFloat("textureScale", textureScale);
-
-    // 描画
-    obj.draw();
+    // CPU側で変換行列を作て渡す modelは作りながら渡すので最後
+    Mat4  view = camera.getViewMatrix();
+    Mat4  projection = camera.getProjectionMatrix(window.getAspectRatio());
+    for (std::size_t i = 0; i < instances.size(); ++i)
+    {
+      const Instance& instance = instances[i];
+      
+      Mat4  model = manipulator.getModelMatrix(instance);
+      shader.setMatrices(model, view, projection);
+      // 描画
+      obj.draw();
+    }
 
     // swap buffers and poll IO events
     glfwSwapBuffers(window.getWindow());

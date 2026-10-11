@@ -13,6 +13,8 @@ private:
   int         width_;
   int         height_;
   bool        tPressed_;
+  bool        pPressed_;
+  bool        kPressed_;
 
   static void framebufferSizeCallback(GLFWwindow* window,
                                       int width,
@@ -27,7 +29,9 @@ public:
   GLFWwindow* getWindow() const;
   void  processInput(Manipulator& Manipulator,
                      bool& useTexture,
-                     float& textureScale);
+                     float& textureScale,
+                     bool& addInstance,
+                     bool& resetInstances);
   bool  shouldClose() const;
   float getAspectRatio() const;
 };

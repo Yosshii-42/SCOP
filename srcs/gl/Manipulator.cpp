@@ -1,10 +1,12 @@
 #include "gl/Manipulator.hpp"
+#include "GLFW/glfw3.h"
 
 Manipulator::Manipulator(const Vec3& center)
   : center_(center),
     rotation_(),
     position_(0.0f, 0.0f, 0.0f),
-    scale_(1.0f, 1.0f, 1.0f)
+    scale_(1.0f, 1.0f, 1.0f),
+    randomRotationAngle_(0.0f)
 {}
 
 Manipulator::~Manipulator() {}
@@ -22,6 +24,16 @@ void  Manipulator::rotateY(float angle)
 void  Manipulator::rotateZ(float angle)
 {
   rotation_ = Mat4::rotate(angle, Vec3(0.0f, 0.0f, 1.0f)) * rotation_;
+}
+
+void  Manipulator::rotateInstance(float angle)
+{
+  instanceAngle_ += angle;
+}
+
+void  Manipulator::rotateRandomAxis(float angle)
+{
+  randomRotationAngle_ += angle;
 }
 
 void  Manipulator::translateX(float trans)
@@ -59,6 +71,30 @@ Mat4  Manipulator::getModelMatrix() const
   model *= Mat4::scale(scale_.x, scale_.y, scale_.z);
 
   // center補正
+  model *= Mat4::translate(-center_.x, -center_.y, -center_.z);
+
+  return (model);
+}
+
+Mat4  Manipulator::getModelMatrix(const Instance& instance) const
+{
+  Mat4  model;
+ 
+  // 平行移動
+  model *= Mat4::translate(position_.x, position_.y, position_.z);
+  model *= Mat4::translate(instance.position.x,
+                           instance.position.y,
+                           instance.position.z);
+
+  // 回転
+  model *= rotation_;
+  model *= Mat4::rotate(randomRotationAngle_, instance.rotationAxis);
+
+  // 拡大縮小
+  model *= Mat4::scale(scale_.x, scale_.y, scale_.z);
+  model *= Mat4::scale(instance.scale, instance.scale, instance.scale);
+
+  // 中心補正
   model *= Mat4::translate(-center_.x, -center_.y, -center_.z);
 
   return (model);

@@ -3,14 +3,16 @@
 namespace Common
 {
   // screen settings
-  const unsigned int DEFAULT_WIDTH = 800;
-  const unsigned int DEFAULT_HEIGHT = 600;
+  constexpr unsigned int DEFAULT_WIDTH = 800;
+  constexpr unsigned int DEFAULT_HEIGHT = 600;
 
   // camera settings
-  const float CAMERA_DISTANCE = 3.0f;
-  const float CAMERA_FOV = 45.0f;
-  const float CAMERA_NEAR = 0.1f;
-  const float CAMERA_FAR = 100.0f;
+  constexpr float CAMERA_DISTANCE = 3.0f;
+  constexpr float CAMERA_FOV = 45.0f;
+  constexpr float CAMERA_NEAR = 0.1f;
+  constexpr float CAMERA_FAR = 100.0f;
+
+  constexpr float VECTOR_EPSILION = 1e-5f;
 
   struct Bounds
   {
@@ -23,3 +25,7 @@ namespace Common
   };
 }
 
+// constexprとは
+// コンパイル時に評価する
+// コンパイル時に確定する定数を表す
+// 対象は、変数、関数、クラスのコンストラクター

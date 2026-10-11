@@ -105,18 +105,37 @@ The project is organized into modules based on their responsibilities.
 - Depth testing
 - Grayscale face coloring
 - Texture mapping
-- Automatic planar UV projection based on face orientation
-- Adjustable texture scale
+- Toggle between textured and non-textured rendering
+- Load and apply image textures using OpenGL
 - Object rotation, translation, and scaling using keyboard controls
 - GLSL vertex and fragment shaders
 
 ### Bonus: Complex Polygon Handling
 This project supports triangulation of concave polygons using the Ear Clipping algorithm.
-
 For non-coplanar polygons, Newell's Method is used to estimate a representative normal vector and select an appropriate 2D projection plane. Ear Clipping is then performed on the projected vertices, while the original 3D coordinates are preserved for rendering.
 - Ear Clipping triangulation for concave polygons
 - Non-coplanar polygon handling using Newell's Method for projection-plane selection
 - Triangle Fan triangulation for comparison and demonstration
+
+### Bonus: Texture Mapping
+This project supports texture mapping using automatically generated UV coordinates.
+- Automatic planar UV projection based on face orientation
+- UV mapping using XY, XZ, or YZ projection planes
+- Adjust texture repetition interactively using keyboard controls
+
+Controls:
+- T: Toggle texture mapping on / off
+- C: Increase texture repetition
+- V: Decrease texture repetition
+
+### Bonus: Magic Pocket
+Press P to add a new instance of the loaded object with a randomized position, scale, and rotation axis.
+
+- P: Add a new object instance
+- K: Remove all added instances, keeping the first instance
+- SPACE: Rotate each instance around its own randomly assigned axis
+
+All instances share the same mesh data (VAO/VBO), avoiding duplicate GPU mesh uploads.
 
 ### Additional Feature: Mesh Diagnostics
 - Degenerate Triangle Detection
@@ -154,9 +173,12 @@ The object can be manipulated using the following keyboard controls:
 | `Z` / `X` | Scale the object up / down |
 | `T` | Toggle texture on / off |
 | `C` / `V` | Increase / decrease texture repetition |
+| `P` | Add a new object instance |
+| `K` | Remove all added instances, keeping the first instance |
+| `SPACE` | Rotate each instance around its own randomly assignd axis |
 | `ESC` | Close the window |
 
-### References
+## References
 
 - [LearnOpenGL](https://learnopengl.com/)
 - [GLFW Documentation](https://www.glfw.org/docs/latest/quick.html)
@@ -168,7 +190,7 @@ The object can be manipulated using the following keyboard controls:
 - [Checking Whether a Point Lies on a Triangle's Vertices](http://www.sousakuba.com/Programming/gs_hittest_point_triangle.html)
 - [Normal vector of a polygon](https://web.ist.utl.pt/~antonio.menezes.leitao/Docs/Books/BookJulia/Parametric_Representation/Surface_Normals/index.html)
 
-### AI Usage
+## AI Usage
 
 AI was used as a learning and development support tool for the following tasks:
 
