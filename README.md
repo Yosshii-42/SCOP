@@ -5,6 +5,7 @@
 ## Overview
 - [Description](#description)
 - [Instructions](#instructions)
+- [Project Structure](#project-structure)
 - [Main features](#main-features)
 - [Controls](#controls)
 - [References](#references)
@@ -62,8 +63,40 @@ Other available commands:
     ./SCOP <obj_file> <bmp_file>
 ```
 
+## Project Structure
+
+The project is organized into modules based on their responsibilities.
+
+- `gl/`: OpenGL rendering and window management
+- `math/`: Vector and matrix calculations
+- `parser/`: OBJ and BMP file parsing
+- `validate/`: Mesh geometry diagnostics
+- `utils/`: Utility functions
+```bash
+    .
+    ├── img
+    ├── includes
+    │   ├── gl
+    │   ├── glad
+    │   │   ├── include
+    │   │   └── src
+    │   ├── math
+    │   ├── parser
+    │   ├── utils
+    │   └── validate
+    ├── resources
+    ├── shaders
+    └── srcs
+        ├── gl
+        ├── math
+        ├── parser
+        ├── utils
+        └── validate
+```
+
 ## Main features
 
+### Mandatory
 - Custom OBJ file parser
 - Custom 24-bit BMP image loader
 - OpenGL 3.3 Core Profile rendering
@@ -76,6 +109,35 @@ Other available commands:
 - Adjustable texture scale
 - Object rotation, translation, and scaling using keyboard controls
 - GLSL vertex and fragment shaders
+
+### Bonus: Complex Polygon Handling
+This project supports triangulation of concave polygons using the Ear Clipping algorithm.
+
+For non-coplanar polygons, Newell's Method is used to estimate a representative normal vector and select an appropriate 2D projection plane. Ear Clipping is then performed on the projected vertices, while the original 3D coordinates are preserved for rendering.
+- Ear Clipping triangulation for concave polygons
+- Non-coplanar polygon handling using Newell's Method for projection-plane selection
+- Triangle Fan triangulation for comparison and demonstration
+
+### Additional Feature: Mesh Diagnostics
+- Degenerate Triangle Detection
+- Face Winding Validation
+- Geometric Edge Analysis
+- Zero-Length Edge Detection
+- Triangle Shape Analysis
+- Non-Coplanar Face Detection
+
+### Demonstration
+
+- Planar star: Demonstrates the difference between Triangle Fan and Ear Clipping triangulation.
+- Non-coplanar pentagon: Demonstrates triangulation and rendering of a non-coplanar polygon.
+- Non-coplanar star: Demonstrates the combined handling of concave and non-coplanar geometry.
+
+Triangle Fan triangulation is retained for comparison during evaluation.
+To compare Triangle Fan and Ear Clipping triangulation, switch the function call in Object::setVertexData() and rebuild the project.
+
+By default, Ear Clipping triangulation is enabled.
+
+Limitation: The triangulation assumes that the polygon has a valid, non-self-intersecting 2D projection. Arbitrary non-coplanar polygons may require additional handling.
 
 ## Controls
 
@@ -104,6 +166,7 @@ The object can be manipulated using the following keyboard controls:
 - [Area of Polygon](https://gihyo.jp/dev/serial/01/geometry/0008)
 - [Ear Clipping Triangulation](https://qiita.com/fujii-kotaro/items/a411f2a45627ed2f156e)
 - [Checking Whether a Point Lies on a Triangle's Vertices](http://www.sousakuba.com/Programming/gs_hittest_point_triangle.html)
+- [Normal vector of a polygon](https://web.ist.utl.pt/~antonio.menezes.leitao/Docs/Books/BookJulia/Parametric_Representation/Surface_Normals/index.html)
 
 ### AI Usage
 

@@ -42,7 +42,8 @@ SRCS	= $(GLAD_DIR)/src/glad.c \
 				srcs/math/Vec3.cpp \
 				srcs/math/Vec4.cpp \
 				srcs/parser/Tokenizer.cpp \
-				srcs/parser/BMP.cpp
+				srcs/parser/BMP.cpp \
+				srcs/validate/MeshDiagnostics.cpp
 
 SRC_M  	= srcs/main.cpp
 

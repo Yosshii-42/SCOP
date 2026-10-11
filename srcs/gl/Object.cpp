@@ -1,5 +1,7 @@
 #include "gl/Object.hpp"
 
+#include <iostream>
+
 Object::Object(const std::vector<float>& vertices,
                const std::vector<std::vector<unsigned int> >& faces,
                const Common::Bounds& bounds,
@@ -7,7 +9,6 @@ Object::Object(const std::vector<float>& vertices,
   : vertices_(vertices), faces_(faces), bounds_(bounds), uvMode_(mode), VAO_(0), VBO_(0)
 {
   setVertexData();
-  (void)bounds_;
 }
 
 Object::~Object()
@@ -28,42 +29,51 @@ void  Object::setVertexData()
     // faceのUVModeを取得する
     UVMode  uvMode = getUVMode(face);
 
-    // float gray = 0.5f + (i % 4) * 0.15f; // 規則的
-    float gray = 0.3f + static_cast<float>(std::rand() % 46) / 100.0f; // ランダム
+    // color指定
+    // float gray = 0.7f; // 1色
+    float gray = 0.5f + (i % 4) * 0.15f; // 規則的
+    // float gray = 0.3f + static_cast<float>(std::rand() % 46) / 100.0f; // ランダム
 
-    if (face.size() < 4)
-    {
-      for (size_t j = 1; j + 1 < face.size(); ++j)
-      {
-        // 3つの頂点のface番号を取得する
-        unsigned int  index1 = face[0] - 1;
-        unsigned int  index2 = face[j] - 1;
-        unsigned int  index3 = face[j + 1] - 1;
+    // 頂点処理手法指定
+    // trianglateFan(face, gray, uvMode);
+    triangulateEarClipping(face, gray, uvMode);
+  }
+}
 
-        // face番号を元に、3つの頂点の座興データを取得し、vertexData_にpush_backする
-        addVertexData(index1, gray, uvMode);
-        addVertexData(index2, gray, uvMode);
-        addVertexData(index3, gray, uvMode);
-      }
-    }
-    else
-    {
-      // Ear Clippingで三角形に分割(凹み図形に対応する)
-      std::vector<unsigned int> triangulars = triangulate(face, uvMode);
-      
-      for (size_t j = 0; j + 2 < triangulars.size(); j += 3)
-      {
-        // 3つの頂点のface番号を取得する
-        unsigned int  index1 = triangulars[j] - 1;
-        unsigned int  index2 = triangulars[j + 1] - 1;
-        unsigned int  index3 = triangulars[j + 2] - 1;
+void  Object::trianglateFan(const std::vector<unsigned int>& face,
+                            float gray, UVMode uvMode)
+{
+  for (size_t j = 1; j + 1 < face.size(); ++j)
+  {
+    // 3つの頂点のface番号を取得する
+    unsigned int  index1 = face[0] - 1;
+    unsigned int  index2 = face[j] - 1;
+    unsigned int  index3 = face[j + 1] - 1;
+
+    // face番号を元に、3つの頂点の座興データを取得し、vertexData_にpush_backする
+    addVertexData(index1, gray, uvMode);
+    addVertexData(index2, gray, uvMode);
+    addVertexData(index3, gray, uvMode);
+  }
+}
+
+void  Object::triangulateEarClipping(const std::vector<unsigned int>& face,
+                                     float gray, UVMode uvMode)
+{
+  // Ear Clippingで三角形に分割(凹み図形に対応する)
+  std::vector<unsigned int> triangulars = triangulate(face, uvMode);
   
-        // face番号を元に、3つの頂点の座興データを取得し、vertexData_にpush_backする
-        addVertexData(index1, gray, uvMode);
-        addVertexData(index2, gray, uvMode);
-        addVertexData(index3, gray, uvMode);    
-      }
-    }
+  for (size_t j = 0; j + 2 < triangulars.size(); j += 3)
+  {
+    // 3つの頂点のface番号を取得する
+    unsigned int  index1 = triangulars[j] - 1;
+    unsigned int  index2 = triangulars[j + 1] - 1;
+    unsigned int  index3 = triangulars[j + 2] - 1;
+
+    // face番号を元に、3つの頂点の座興データを取得し、vertexData_にpush_backする
+    addVertexData(index1, gray, uvMode);
+    addVertexData(index2, gray, uvMode);
+    addVertexData(index3, gray, uvMode);    
   }
 }
 
@@ -106,7 +116,7 @@ void  Object::addVertexData(unsigned int index, float gray, UVMode uvMode)
   vertexData_.push_back(v);
 }
 
-// triangulate
+// Ear Clippingによる三角形分割を計算する
 std::vector<unsigned int> Object::triangulate(const std::vector<unsigned int>& face,
                                                Object::UVMode mode) const
 {
@@ -167,13 +177,13 @@ std::vector<unsigned int> Object::triangulate(const std::vector<unsigned int>& f
     if (!earFound)
       throw std::runtime_error("Ear clipping failed");
   }
+  // 残った3点をpush_backする
   triangles.push_back(face[remaining[0]]);
   triangles.push_back(face[remaining[1]]);
   triangles.push_back(face[remaining[2]]);
 
   return (triangles);
 }
-
 
 // face[i]の頂点座標をVec3で得る
 Vec3  Object::getVertex(unsigned int index) const
@@ -187,13 +197,18 @@ Vec3  Object::getVertex(unsigned int index) const
 // faceのUV面を決める
 Object::UVMode  Object::getUVMode(const std::vector<unsigned int>& face) const
 {
-  // faces_[i]の法線ベクトルを求める
-  Vec3  p0 = getVertex(face[0] - 1);
-  Vec3  p1 = getVertex(face[1] - 1);
-  Vec3  p2 = getVertex(face[2] - 1);
-  Vec3  p0_p1 = p1 - p0;
-  Vec3  p0_p2 = p2 - p0;
-  Vec3  normal = p0_p1.cross(p0_p2).normalize();
+  // faces_[i]の法線ベクトルを求める Newell's Method
+  Vec3  normal;
+
+  for (std::size_t i = 0; i < face.size(); ++i)
+  {
+    Vec3  a = getVertex(face[i] - 1);
+    Vec3  b = getVertex(face[(i + 1) % face.size()] - 1);
+
+    normal.x += (a.y - b.y) * (a.z + b.z);
+    normal.y += (a.z - b.z) * (a.x + b.x);
+    normal.z += (a.x - b.x) * (a.y + b.y);
+  }
 
   // x, y, zの最大と成分を求める
   float absX = std::fabs(normal.x);

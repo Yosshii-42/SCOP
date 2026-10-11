@@ -27,9 +27,15 @@ public:
   
   void    setVertexData();
 
+
+  void    trianglateFan(const std::vector<unsigned int>& face,
+                        float gray,
+                        UVMode mode);
+  void    triangulateEarClipping(const std::vector<unsigned int>& face,
+                                 float gray, UVMode uvMode);
   void    addVertexData(unsigned int index, float gray, UVMode uvMode);
   std::vector<unsigned int> triangulate(const std::vector<unsigned int>& face,
-                                         UVMode mode) const;
+                                         UVMode uvMode) const;
   // utils functions
   Vec3    getVertex(unsigned int index) const;
   UVMode  getUVMode(const std::vector<unsigned int>& face) const;
@@ -39,16 +45,18 @@ public:
                         std::size_t pre,
                         std::size_t cur,
                         std::size_t next) const;
+
+  // for survay
   
-public:
+  public:
   Object(const std::vector<float>& vertices,
-         const std::vector<std::vector<unsigned int> >& faces,
-         const Common::Bounds& bounds,
-         UVMode mode = UV_YZ);
+  const std::vector<std::vector<unsigned int> >& faces,
+  const Common::Bounds& bounds,
+  UVMode mode = UV_YZ);
   ~Object();
   Object(const Object&) = delete;
-    Object& operator=(const Object&) = delete;
-
+  Object& operator=(const Object&) = delete;
+  
   void  setupGPU();
   void  setUVMode(UVMode mode);
   void  draw() const;

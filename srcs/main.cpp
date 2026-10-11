@@ -11,11 +11,16 @@
 #include "gl/Manipulator.hpp"
 #include "gl/Camera.hpp"
 #include "math/Vec3.hpp"
+#include "validate/MeshDiagnostics.hpp"
 
 int main(int argc, char **argv)
 {
   Utils::checkArgv(argc, argv);
   Tokenizer tokenizer(argv[1]);
+
+  MeshDiagnostics diagnostics(tokenizer.getVertices(),
+                              tokenizer.getFaces());
+  diagnostics.checkAll();
   
   // window作成とOpenGL初期設定
   Window window;
@@ -24,6 +29,8 @@ int main(int argc, char **argv)
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // どうブレンドするかを指定する
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);               // 背景色   
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);          // 描画mode設定
+  // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  glDisable(GL_CULL_FACE);
   
   // textureを読み込み、OpenGL textureを作成
   Texture texture(argv[2]);
@@ -79,3 +86,5 @@ int main(int argc, char **argv)
  
 	return 0;
 }
+
+
