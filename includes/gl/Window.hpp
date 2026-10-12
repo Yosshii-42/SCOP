@@ -13,13 +13,13 @@ private:
   int         width_;
   int         height_;
 
-  struct KeyFlags {
-    bool  tPressed_;
-    bool  pPressed_;
-    bool  kPressed_;
+  struct KeyPressedFlags {
+    bool  t;
+    bool  p;
+    bool  k;
   };
 
-  KeyFlags keyFlags_;
+  KeyPressedFlags keyPressed_;
 
   static void framebufferSizeCallback(GLFWwindow* window,
                                       int width,

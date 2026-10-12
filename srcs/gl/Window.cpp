@@ -5,7 +5,7 @@ Window::Window()
  : window_(NULL),
    width_(Common::DEFAULT_WIDTH),
    height_(Common::DEFAULT_HEIGHT),
-   keyFlags_{false, false, false}
+   keyPressed_{false, false, false}
 {
 // reset cwd
 #ifdef __APPLE__
@@ -126,15 +126,15 @@ void Window::processInput(Manipulator& manipulator,
   // [T] Textureとプレーンの切り替え、1回雄ごとの処理
   if (glfwGetKey(window_, GLFW_KEY_T) == GLFW_PRESS)
   {
-    if (!keyFlags_.tPressed_)
+    if (!keyPressed_.t)
     {
       inputFlags.useTexture = !inputFlags.useTexture; // 反転させる
-      keyFlags_.tPressed_ = true;
+      keyPressed_.t = true;
     }
   }
   else
   {
-    keyFlags_.tPressed_ = false;
+    keyPressed_.t = false;
   }
 
   // [C] Textureを細かくする
@@ -148,26 +148,26 @@ void Window::processInput(Manipulator& manipulator,
   // [P] オブジェクトを増やす
   if (glfwGetKey(window_, GLFW_KEY_P) == GLFW_PRESS)
   {
-    if (!keyFlags_.pPressed_)
+    if (!keyPressed_.p)
     {
-      keyFlags_.pPressed_ = true;
+      keyPressed_.p = true;
       inputFlags.addInstance = true;
     }
   }
   else
-    keyFlags_.pPressed_ = false;
+    keyPressed_.p = false;
 
   // [k] オブジェクト数をリセットする
   if (glfwGetKey(window_, GLFW_KEY_K) == GLFW_PRESS)
   {
-    if (!keyFlags_.kPressed_)
+    if (!keyPressed_.k)
     {
-      keyFlags_.kPressed_ = true;
+      keyPressed_.k = true;
       inputFlags.resetInstances = true;
     }
   }
   else
-    keyFlags_.kPressed_ = false;
+    keyPressed_.k = false;
 
   // [Space] 個別回転
   if (glfwGetKey(window_, GLFW_KEY_SPACE) == GLFW_PRESS)
