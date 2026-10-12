@@ -40,6 +40,7 @@ int main(int argc, char **argv)
   Texture texture(argv[2]);
   float   textureScale = 1.0f;
   bool    useTexture = false;
+  float   textureBlend = 0.0f;
    
   // objのデータ作成  VAO,VBO,bounds,uv面設定
   Object  obj(tokenizer.getVertices(),
@@ -69,20 +70,30 @@ int main(int argc, char **argv)
     // キー操作
     window.processInput(manipulator, useTexture, textureScale,
                         addInstance, resetInstances);
+    
+    // Magic Pocket
     if (addInstance)
       Instance::setInstance(instances);
     if (resetInstances && instances.size() > 1)
       instances.erase(instances.begin() + 1, instances.end());
 
+    // texture blend
+    float target = useTexture ? 1.0f : 0.0f;
+    float step = 0.02f;
+    if (textureBlend < target)
+      textureBlend = std::min(textureBlend + step, target);
+    else
+      textureBlend = std::max(textureBlend - step, target);
+    texture.bind();
+
     // 毎フレーム画面と深度バッファをクリア
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    texture.bind();
 
     // GPUに渡す / 使用するshaderprogramを指定し、作った行列をuniformに送る
     shader.use();
     shader.setBool("useTexture", useTexture);
     shader.setFloat("textureScale", textureScale);
+    shader.setFloat("textureBlend", textureBlend);
     // CPU側で変換行列を作て渡す modelは作りながら渡すので最後
     Mat4  view = camera.getViewMatrix();
     Mat4  projection = camera.getProjectionMatrix(window.getAspectRatio());
