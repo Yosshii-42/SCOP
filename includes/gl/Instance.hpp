@@ -1,6 +1,7 @@
 #pragma once
 
 #include "math/Vec3.hpp"
+#include <vector>
 
 struct Instance {
   Vec3  position;

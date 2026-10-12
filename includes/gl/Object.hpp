@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 #include <vector>
+#include <cmath>
 
 #include "Common.hpp"
 #include "math/Vec3.hpp"

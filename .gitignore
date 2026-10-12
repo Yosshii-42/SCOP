@@ -6,3 +6,4 @@ SCOP
 *.py
 *.txt
 diff
+*.log

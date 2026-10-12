@@ -1,6 +1,9 @@
 #include "gl/Shader.hpp"
+#include <stdexcept>
 
-Shader::Shader(const char* vertexPath, const char* fragmentPath) {
+Shader::Shader(const char* vertexPath, const char* fragmentPath)
+  : ID_(0)
+{
   // 1. retrieve the vertex/fragment source code from filePath
   std::string   vertexCode;
   std::string   fragmentCode;
@@ -29,7 +32,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
   }
   catch (std::ifstream::failure& e)
   {
-    std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: " << e.what() << std::endl;
+    throw std::runtime_error(std::string("ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: ") + e.what());
   }
 
   const char* vShaderCode = vertexCode.c_str();

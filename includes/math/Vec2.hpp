@@ -1,6 +1,8 @@
 #pragma once
 
 #include <ostream>
+#include <vector>
+#include <cmath>
 
 class Vec2 {
 public:

@@ -2,6 +2,7 @@
 
 // #include <stdexcept>
 #include <ostream>
+#include <cmath>
 
 class Vec3 {
 public:
