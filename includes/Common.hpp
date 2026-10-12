@@ -23,6 +23,18 @@ namespace Common
     float minZ;
     float maxZ;
   };
+  
+  struct InputFlags
+  {
+    bool  useTexture;
+    bool  addInstance;
+    bool  resetInstances;
+  
+    InputFlags()
+      : useTexture(false),
+        addInstance(false),
+        resetInstances(false) {}
+  };
 }
 
 // constexprとは

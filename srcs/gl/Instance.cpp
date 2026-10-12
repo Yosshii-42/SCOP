@@ -27,5 +27,11 @@ void  Instance::setInstance(std::vector<Instance>& instances)
   instance.scale = randomFloat(0.2f, 0.7f);
   instance.rotationSpeed = randomFloat(0.2f, 1.0f);
 
+  if (instances.empty())
+  {
+    instance.position = Vec3(0.0f, 0.0f, 0.0f);
+    instance.scale = 1.0f;
+  }
+
   instances.push_back(instance);
 }

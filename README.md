@@ -105,7 +105,7 @@ The project is organized into modules based on their responsibilities.
 - Depth testing
 - Grayscale face coloring
 - Texture mapping
-- Toggle between textured and non-textured rendering
+- Smooth transition between grayscale and textured rendering using GLSL `mix()`
 - Load and apply image textures using OpenGL
 - Object rotation, translation, and scaling using keyboard controls
 - GLSL vertex and fragment shaders

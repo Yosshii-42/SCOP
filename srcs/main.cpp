@@ -36,10 +36,12 @@ int main(int argc, char **argv)
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   glDisable(GL_CULL_FACE);
   
+  // input flagをインスタンス化
+  Common::InputFlags  inputFlags;
+
   // textureを読み込み、OpenGL textureを作成
   Texture texture(argv[2]);
   float   textureScale = 1.0f;
-  bool    useTexture = false;
   float   textureBlend = 0.0f;
    
   // objのデータ作成  VAO,VBO,bounds,uv面設定
@@ -59,26 +61,24 @@ int main(int argc, char **argv)
   // shaderをインスタンス化
   Shader  shader("shaders/vertex.glsl", "shaders/fragment.glsl");
 
+  // Magic Pocket用Instance作成
   std::vector<Instance> instances;
   Instance::setInstance(instances);
-  bool  addInstance;
-  bool  resetInstances;
 
   // レンダリングループ 
   while (!window.shouldClose())
   {
     // キー操作
-    window.processInput(manipulator, useTexture, textureScale,
-                        addInstance, resetInstances);
+    window.processInput(manipulator, textureScale, inputFlags);
     
     // Magic Pocket
-    if (addInstance)
+    if (inputFlags.addInstance)
       Instance::setInstance(instances);
-    if (resetInstances && instances.size() > 1)
+    if (inputFlags.resetInstances && instances.size() > 1)
       instances.erase(instances.begin() + 1, instances.end());
 
     // texture blend
-    float target = useTexture ? 1.0f : 0.0f;
+    float target = inputFlags.useTexture ? 1.0f : 0.0f;
     float step = 0.02f;
     if (textureBlend < target)
       textureBlend = std::min(textureBlend + step, target);
@@ -91,9 +91,10 @@ int main(int argc, char **argv)
 
     // GPUに渡す / 使用するshaderprogramを指定し、作った行列をuniformに送る
     shader.use();
-    shader.setBool("useTexture", useTexture);
+    shader.setBool("useTexture", inputFlags.useTexture);
     shader.setFloat("textureScale", textureScale);
     shader.setFloat("textureBlend", textureBlend);
+  
     // CPU側で変換行列を作て渡す modelは作りながら渡すので最後
     Mat4  view = camera.getViewMatrix();
     Mat4  projection = camera.getProjectionMatrix(window.getAspectRatio());

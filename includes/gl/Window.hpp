@@ -12,9 +12,14 @@ private:
   GLFWwindow* window_;
   int         width_;
   int         height_;
-  bool        tPressed_;
-  bool        pPressed_;
-  bool        kPressed_;
+
+  struct KeyFlags {
+    bool  tPressed_;
+    bool  pPressed_;
+    bool  kPressed_;
+  };
+
+  KeyFlags keyFlags_;
 
   static void framebufferSizeCallback(GLFWwindow* window,
                                       int width,
@@ -28,10 +33,8 @@ public:
   
   GLFWwindow* getWindow() const;
   void  processInput(Manipulator& Manipulator,
-                     bool& useTexture,
                      float& textureScale,
-                     bool& addInstance,
-                     bool& resetInstances);
+                     Common::InputFlags& inputFlags);
   bool  shouldClose() const;
   float getAspectRatio() const;
 };

@@ -2,8 +2,10 @@
 #include "gl/Instance.hpp"
 
 Window::Window()
- : window_(NULL), width_(Common::DEFAULT_WIDTH), height_(Common::DEFAULT_HEIGHT),
-  tPressed_(false), pPressed_(false), kPressed_(false)
+ : window_(NULL),
+   width_(Common::DEFAULT_WIDTH),
+   height_(Common::DEFAULT_HEIGHT),
+   keyFlags_{false, false, false}
 {
 // reset cwd
 #ifdef __APPLE__
@@ -66,13 +68,11 @@ GLFWwindow*  Window::getWindow() const
 }
 
 void Window::processInput(Manipulator& manipulator,
-                          bool& useTexture,
                           float& textureScale,
-                          bool& addInstance,
-                          bool& resetInstances)
+                          Common::InputFlags& inputFlags)
 {
-  addInstance = false;
-  resetInstances = false;
+  inputFlags.addInstance = false;
+  inputFlags.resetInstances = false;
 
   // esc
 	if (glfwGetKey(window_, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -126,15 +126,15 @@ void Window::processInput(Manipulator& manipulator,
   // [T] Textureとプレーンの切り替え、1回雄ごとの処理
   if (glfwGetKey(window_, GLFW_KEY_T) == GLFW_PRESS)
   {
-    if (!tPressed_)
+    if (!keyFlags_.tPressed_)
     {
-      useTexture = !useTexture; // 反転させる
-      tPressed_ = true;
+      inputFlags.useTexture = !inputFlags.useTexture; // 反転させる
+      keyFlags_.tPressed_ = true;
     }
   }
   else
   {
-    tPressed_ = false;
+    keyFlags_.tPressed_ = false;
   }
 
   // [C] Textureを細かくする
@@ -148,26 +148,26 @@ void Window::processInput(Manipulator& manipulator,
   // [P] オブジェクトを増やす
   if (glfwGetKey(window_, GLFW_KEY_P) == GLFW_PRESS)
   {
-    if (!pPressed_)
+    if (!keyFlags_.pPressed_)
     {
-      pPressed_ = true;
-      addInstance = true;
+      keyFlags_.pPressed_ = true;
+      inputFlags.addInstance = true;
     }
   }
   else
-    pPressed_ = false;
+    keyFlags_.pPressed_ = false;
 
   // [k] オブジェクト数をリセットする
   if (glfwGetKey(window_, GLFW_KEY_K) == GLFW_PRESS)
   {
-    if (!kPressed_)
+    if (!keyFlags_.kPressed_)
     {
-      kPressed_ = true;
-      resetInstances = true;
+      keyFlags_.kPressed_ = true;
+      inputFlags.resetInstances = true;
     }
   }
   else
-    kPressed_ = false;
+    keyFlags_.kPressed_ = false;
 
   // [Space] 個別回転
   if (glfwGetKey(window_, GLFW_KEY_SPACE) == GLFW_PRESS)
