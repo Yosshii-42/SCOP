@@ -24,8 +24,7 @@ Additionally, a texture can be loaded and applied to the 3D object.
 ### Ubuntu
 
 ```bash
-    sudo apt update
-    sudo apt install -y build-essential cmake xorg-dev libgl1-mesa-dev libglfw3-dev
+    sudo apt update && sudo apt install -y build-essential cmake xorg-dev libgl1-mesa-dev libglfw3-dev
 ```
 
 ### MacOS
