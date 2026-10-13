@@ -4,6 +4,7 @@
 
 ## Overview
 - [Description](#description)
+- [Dependencies](#dependencies)
 - [Instructions](#instructions)
 - [Project Structure](#project-structure)
 - [Main features](#main-features)
@@ -18,6 +19,19 @@ It loads an `.obj` file and displays the 3D object in a window.
 The object can be rotated, moved, and scaled using keyboard inputs.
 Additionally, a texture can be loaded and applied to the 3D object.
 
+## Dependencies
+
+### Ubuntu
+
+```bash
+    sudo apt update
+    sudo apt install -y build-essential cmake xorg-dev libgl1-mesa-dev libglfw3-dev
+```
+
+### MacOS
+`brew install glfw`
+
+GLFW is already installed in the 42 school environment, so no additional installation is required.
 ## Instructions
 
 ### Requirements
@@ -28,7 +42,6 @@ Additionally, a texture can be loaded and applied to the 3D object.
 - **OpenGL Loader:** GLAD (included in the repository)
 - **Build Tool:** Make
 
-GLFW is already installed in the 42 school environment.
 GLAD is included in this repository, so no additional installation is required.
 ```bash
 includes/
