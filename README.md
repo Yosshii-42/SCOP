@@ -28,7 +28,9 @@ Additionally, a texture can be loaded and applied to the 3D object.
 ```
 
 ### MacOS
-`brew install glfw`
+```bash
+    brew install glfw
+```
 
 GLFW is already installed in the 42 school environment, so no additional installation is required.
 ## Instructions
