@@ -1,14 +1,16 @@
 #include "parser/Tokenizer.hpp"
 
 Tokenizer::Tokenizer(const std::string& fileName)
-  : isFirstVertex_(true)
+  : maxFaceIndex_(1), isFirstVertex_(true)
 {
     std::ifstream file(fileName.c_str());
-    if (!file) {
-        throw std::runtime_error("Failed to open file: " + fileName);
-    }
+    if (!file)
+      throw std::runtime_error("Failed to open file: " + fileName);
+
     tokenize(file);
     makeCenter();
+    if ((unsigned int)(vertices_.size() / 3) < maxFaceIndex_)
+      throw std::runtime_error("Invalid face element");
 }
 
 Tokenizer::~Tokenizer() {}
@@ -44,8 +46,19 @@ void  Tokenizer::setVertices(std::istringstream& iss)
   float x;
   float y;
   float z;
+
   if (!(iss >> x >> y >> z))
-    std::exit(EXIT_FAILURE);
+    throw std::runtime_error("Invalid vartex element");
+
+  // x, y, z以降の文字列について
+  std::string extra;
+  if (iss >> extra)
+    throw std::runtime_error("Invalid vartex components");
+
+  // x, y, zのfloat値をチェックしてpush_back
+  if (!std::isfinite(x) || !std::isfinite(y) || !std::isfinite(z))
+    throw std::runtime_error("Invalid float value");
+  
   vertices_.push_back(x);
   vertices_.push_back(y);
   vertices_.push_back(z);
@@ -74,9 +87,16 @@ void  Tokenizer::setFaces(std::istringstream& iss)
   std::vector<unsigned int>  face;
   unsigned int  x;
   while (iss >> x)
+  {
+    if (x > maxFaceIndex_)
+      maxFaceIndex_ = x;
     face.push_back(x);
-  if (face.size() < 3 || !iss.eof()) 
+  }
+  if (face.size() < 3 || !iss.eof())
+  {
+    std::cerr << "Invalid face element" << std::endl;
     std::exit(EXIT_FAILURE);
+  } 
   faces_.push_back(face);
 }
 

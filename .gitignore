@@ -8,3 +8,4 @@ SCOP
 diff
 *.log
 *.pdf
+.vscode/

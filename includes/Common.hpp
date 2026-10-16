@@ -14,6 +14,8 @@ namespace Common
 
   constexpr float VECTOR_EPSILION = 1e-5f;
 
+  constexpr size_t MAX_INSTANCES = 30;
+
   struct Bounds
   {
     float minX;

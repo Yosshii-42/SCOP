@@ -16,6 +16,7 @@ private:
   std::vector<std::vector<unsigned int>>  faces_;
   Common::Bounds                          bounds_;
   Vec3                                    center_;
+  unsigned int                            maxFaceIndex_;                            
   bool                                    isFirstVertex_;
   
   void  makeCenter();

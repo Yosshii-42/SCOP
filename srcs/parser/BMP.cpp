@@ -1,11 +1,17 @@
 #include "parser/BMP.hpp"
 
+#include <filesystem>
+#include <iostream>
+#include <fstream>  // BMPをバイナリで開く
+
 BMP::BMP(const std::string& path)
   : width_(0), height_(0)
 {
   std::ifstream file(path.c_str(), std::ios::binary);
   if (!file)
     throw std::runtime_error("Failed to open BMP: " + path);
+
+  std::uintmax_t  realFileSize = std::filesystem::file_size(path.c_str());
 
   // 先頭の2文字を判定する
   char  signature[2];
@@ -14,6 +20,16 @@ BMP::BMP(const std::string& path)
     throw std::runtime_error("Failed to read BMP header");
   if (signature[0] != 'B' || signature[1] != 'M')
     throw std::runtime_error("Invalid BMP file");
+
+  // ヘッダに記載されたfile sizeを取得して比較する(4バイト)
+  std::uint32_t  writtenFileSize = 0;
+  file.seekg(2, std::ios::beg);
+  file.read(reinterpret_cast<char*>(&writtenFileSize),
+            sizeof(writtenFileSize));
+  if (!file)
+    throw std::runtime_error("Failed to read BMP file size");
+  if (realFileSize != writtenFileSize)
+    throw std::runtime_error("Invalid bmp file size");
 
   // pixel offsetを取得する
   unsigned int  pixelOffset;
@@ -65,9 +81,11 @@ BMP::BMP(const std::string& path)
       unsigned char g;
       unsigned char r;
 
-      file.read(reinterpret_cast<char*>(&b), sizeof(char));
-      file.read(reinterpret_cast<char*>(&g), sizeof(char));
-      file.read(reinterpret_cast<char*>(&r), sizeof(char));
+      // データが不足している場合
+      if (!file.read(reinterpret_cast<char*>(&b), sizeof(char)) ||
+          !file.read(reinterpret_cast<char*>(&g), sizeof(char)) ||
+          !file.read(reinterpret_cast<char*>(&r), sizeof(char)))
+          throw std::runtime_error("Invalid bmp pixel data");
 
       data_.push_back(r);
       data_.push_back(g);
@@ -75,6 +93,7 @@ BMP::BMP(const std::string& path)
     }
     file.seekg(padding, std::ios::cur); // padding分進める
   }
+
 }
 // file.read(char* buffer, std::streamsize size);
 

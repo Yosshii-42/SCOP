@@ -1,7 +1,8 @@
 #pragma once
 
-#include <glad/glad.h>
+#include "parser/BMP.hpp"
 
+#include <glad/glad.h>
 #include <stdexcept>
 #include <string>
 
@@ -10,7 +11,7 @@ private:
   unsigned int  id_;
 
 public:
-  explicit Texture(const std::string& path);
+  explicit Texture(const BMP& bmp);
   ~Texture();
   Texture(const Texture& other) = delete;
   Texture& operator=(const Texture& other) = delete;

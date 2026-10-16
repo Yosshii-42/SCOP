@@ -192,12 +192,13 @@ The object can be manipulated using the following keyboard controls:
 | `SPACE` | Rotate each instance around its own randomly assignd axis |
 | `ESC` | Close the window |
 
-## References
+## Resources
 
 - [LearnOpenGL](https://learnopengl.com/)
 - [GLFW Documentation](https://www.glfw.org/docs/latest/quick.html)
 - [OpenGL Reference](https://registry.khronos.org/OpenGL/specs/gl/glspec33.core.pdf)
 - [GLAD](https://glad.dav1d.de)
+- [std::isfinite](https://cpprefjp.github.io/reference/cmath/isfinite.html)
 - [BMP file format](https://www.setsuki.com/hsp/ext/bmp.htm)
 - [Area of Polygon](https://gihyo.jp/dev/serial/01/geometry/0008)
 - [Ear Clipping Triangulation](https://qiita.com/fujii-kotaro/items/a411f2a45627ed2f156e)

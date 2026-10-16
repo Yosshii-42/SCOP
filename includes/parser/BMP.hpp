@@ -1,7 +1,5 @@
 #pragma once
 
-#include <iostream>
-#include <fstream>  // BMPをバイナリで開く
 #include <vector>
 #include <string>
 

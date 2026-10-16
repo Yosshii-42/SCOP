@@ -1,7 +1,7 @@
 #include "gl/Texture.hpp"
 #include "parser/BMP.hpp"
 
-Texture::Texture(const std::string& path)
+Texture::Texture(const BMP& bmp)
   : id_(0)
 {
   glGenTextures(1, &id_);
@@ -13,14 +13,13 @@ Texture::Texture(const std::string& path)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-  //loat and geterate the texture
-  BMP bmp(path);
+  //geterate the texture
   const std::vector<unsigned char>& data = bmp.getData();
   if (data.empty())
   {
     glDeleteTextures(1, &id_);
     id_ = 0;
-    throw std::runtime_error("Failed to load Texture: " + path);
+    throw std::runtime_error("Failed to generate Texture");
   }
   
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
