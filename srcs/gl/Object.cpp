@@ -5,10 +5,8 @@
 Object::Object(const std::vector<float>& vertices,
                const std::vector<std::vector<unsigned int> >& faces,
                const Common::Bounds& bounds,
-               UVMode mode,
                Common::UVMapping mapping)
-  : vertices_(vertices), faces_(faces), bounds_(bounds),
-    uvMode_(mode), uvMapping_(mapping), VAO_(0), VBO_(0)
+  : vertices_(vertices), faces_(faces), bounds_(bounds), uvMapping_(mapping), VAO_(0), VBO_(0)
 {
   setVertexData();
 }
@@ -39,8 +37,8 @@ void  Object::setVertexData()
     // float gray = 0.3f + static_cast<float>(std::rand() % 46) / 100.0f; // ランダム
 
     // 頂点処理手法指定
-    // trianglateFan(face, gray, uvMode, getUVBais(normal));
-    triangulateEarClipping(face, gray, uvMode, getUVBais(normal));
+    // trianglateFan(face, gray, uvMode, getUVBasis(normal));
+    triangulateEarClipping(face, gray, uvMode, getUVBasis(normal));
   }
 }
 
@@ -64,7 +62,7 @@ void  Object::trianglateFan(const std::vector<unsigned int>& face,
 
 // Ear Clippingを使って分割する処理
 void  Object::triangulateEarClipping(const std::vector<unsigned int>& face,
-                                     float gray, UVMode uvMode, UVBasis uvBasis)
+                                     float gray, UVMode uvMode, const UVBasis& uvBasis)
 {
   // Ear Clippingで三角形に分割(凹み図形に対応する)
   std::vector<unsigned int> triangulars = triangulate(face, uvMode);
@@ -185,7 +183,7 @@ Vec3  Object::getVertex(unsigned int index) const
               ));
 }
 
-// faceのUV面を決める
+// faceの代表法線と投影面を決定
 Object::UVMode  Object::getUVMode(const std::vector<unsigned int>& face,
                                   Vec3& normal) const
 {
@@ -251,8 +249,8 @@ Vec2  Object::getUVNormal(const Vec3& p, const UVBasis& basis) const
   return (Vec2(u, v));
 }
 
-// Vec3 u, Vec3 v の構造体を返す
-Object::UVBasis Object::getUVBais(const Vec3& normal) const
+// 法線からUVの基底ベクトルを生成 Vec3 u, Vec3 v の構造体を返す
+Object::UVBasis Object::getUVBasis(const Vec3& normal) const
 {
   Vec3  helperAxis;
 
@@ -356,13 +354,7 @@ void  Object::setupGPU()
   glBindVertexArray(0);
 }
 
-void  Object::setUVMode(UVMode mode)
-{
-  uvMode_ = mode;
-
-}
-
-// uv座標を更新する
+// mappingの変更に応じてVBOを更新する
 void  Object::setUVMapping(Common::UVMapping mapping)
 {
   if (uvMapping_ == mapping)
