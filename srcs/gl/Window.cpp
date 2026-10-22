@@ -1,11 +1,12 @@
 #include "gl/Window.hpp"
 #include "gl/Instance.hpp"
+#include "Common.hpp"
 
 Window::Window()
  : window_(NULL),
    width_(Common::DEFAULT_WIDTH),
    height_(Common::DEFAULT_HEIGHT),
-   keyPressed_{false, false, false}
+   keyPressed_{false, false, false, false}
 {
 // reset cwd
 #ifdef __APPLE__
@@ -17,6 +18,7 @@ glfwInitHint(GLFW_COCOA_CHDIR_RESOURCES, GLFW_FALSE);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // windowを非表示で生成
 
 #ifdef __APPLE__
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -60,6 +62,11 @@ Window::~Window()
   if (window_ != NULL)
     glfwDestroyWindow(window_);
   glfwTerminate();
+}
+
+void  Window::show()
+{
+  glfwShowWindow(window_);
 }
 
 GLFWwindow*  Window::getWindow() const
@@ -172,6 +179,19 @@ void Window::processInput(Manipulator& manipulator,
   // [Space] 個別回転
   if (glfwGetKey(window_, GLFW_KEY_SPACE) == GLFW_PRESS)
     manipulator.rotateRandomAxis(Mat4::radians(1.0f));
+
+  // [m] UV mapping
+  if (glfwGetKey(window_, GLFW_KEY_M) == GLFW_PRESS)
+  {
+    if (!keyPressed_.m)
+    {
+      inputFlags.uvMapping = (inputFlags.uvMapping == Common::UV_AXIS) ?
+                             Common::UV_NORMAL : Common::UV_AXIS;
+      keyPressed_.m = true;
+    }
+  }
+  else
+    keyPressed_.m = false;
 }
 
 bool  Window::shouldClose() const

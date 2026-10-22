@@ -17,6 +17,7 @@ private:
     bool  t;
     bool  p;
     bool  k;
+    bool  m;
   };
 
   KeyPressedFlags keyPressed_;
@@ -31,6 +32,7 @@ public:
   Window(const Window&) = delete;
   Window& operator=(const Window&) = delete;
   
+  void  show();
   GLFWwindow* getWindow() const;
   void  processInput(Manipulator& Manipulator,
                      float& textureScale,

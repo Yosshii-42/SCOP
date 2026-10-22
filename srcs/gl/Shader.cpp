@@ -39,30 +39,58 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
   const char* fShaderCode = fragmentCode.c_str();
 
   // 2. compile shaders
-  unsigned int  vertex, fragment;
-  // vertex shader
-  vertex = glCreateShader(GL_VERTEX_SHADER);
-  glShaderSource(vertex, 1, &vShaderCode, NULL);
-  glCompileShader(vertex);
-  checkCompileErrors(vertex, "VERTWX");
-  // fragment shader
-  fragment = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(fragment, 1, &fShaderCode, NULL);
-  glCompileShader(fragment);
-  checkCompileErrors(fragment, "FRAGMENT");
-  // shader program
-  ID_ = glCreateProgram();
-  glAttachShader(ID_, vertex);
-  glAttachShader(ID_, fragment);
-  glLinkProgram(ID_);
-  checkCompileErrors(ID_, "PROGRAM");
+  unsigned int  vertex = 0;
+  unsigned int  fragment = 0;
+  try
+  {
+    // vertex shader
+    vertex = glCreateShader(GL_VERTEX_SHADER);
+    if (vertex == 0)
+      throw std::runtime_error("Failed to create vertex shader");
+    glShaderSource(vertex, 1, &vShaderCode, NULL);
+    glCompileShader(vertex);
+    checkCompileErrors(vertex, "VERTEX");
+
+    // fragment shader
+    fragment = glCreateShader(GL_FRAGMENT_SHADER);
+    if (fragment == 0)
+      throw std::runtime_error("Failed to create fragment shader");
+    glShaderSource(fragment, 1, &fShaderCode, NULL);
+    glCompileShader(fragment);
+    checkCompileErrors(fragment, "FRAGMENT");
+    
+    // shader program
+    ID_ = glCreateProgram();
+    if (ID_ == 0)
+      throw std::runtime_error("Failed to create program shader");
+    glAttachShader(ID_, vertex);
+    glAttachShader(ID_, fragment);
+    glLinkProgram(ID_);
+    checkCompileErrors(ID_, "PROGRAM");
+  }
+  catch(...)
+  {
+    // errorの場合リソースを解放する
+    glDeleteShader(vertex);
+    glDeleteShader(fragment);
+    if (ID_ != 0)
+    {
+      glDeleteProgram(ID_);
+      ID_ = 0;
+    }
+    throw;
+    // std::cerr << e.what() << '\n';
+  }
+  
+  // Successfully linked
   // delete the shaders as they're linked into our program now and no longer necessary
   glDeleteShader(vertex);
   glDeleteShader(fragment);
 }
 
 Shader::~Shader() {
-  glDeleteProgram(ID_);
+  if (ID_ != 0)
+    glDeleteProgram(ID_);
 }
 
 void  Shader::setMatrices(const Mat4& model, const Mat4& view, const Mat4& projection)
@@ -135,12 +163,11 @@ void  Shader::checkCompileErrors(unsigned int shader, const std::string& type)
     if (!success)
     {
       glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-      std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: "
-                << type
-                << "\n"
-                << infoLog
-                << "\n -- --------------------------------------------------- -- "
-                << std::endl;
+      throw std::runtime_error("ERROR::SHADER_COMPILATION_ERROR of type: " +
+                               type +
+                               "\n" +
+                               infoLog +
+                               "\n -- --------------------------------------------------- -- ");
     }
   }
   else
@@ -149,12 +176,11 @@ void  Shader::checkCompileErrors(unsigned int shader, const std::string& type)
     if (!success)
     {
       glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-      std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: "
-                << type
-                << "\n"
-                << infoLog
-                << "\n -- --------------------------------------------------- -- "
-                << std::endl;      
+      throw std::runtime_error("ERROR::PROGRAM_LINKING_ERROR of type: " +
+                               type +
+                               "\n" +
+                               infoLog +
+                               "\n -- --------------------------------------------------- -- ");
     }
   }
 }

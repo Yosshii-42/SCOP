@@ -12,7 +12,7 @@ namespace Common
   constexpr float CAMERA_NEAR = 0.1f;
   constexpr float CAMERA_FAR = 100.0f;
 
-  constexpr float VECTOR_EPSILION = 1e-5f;
+  constexpr float VECTOR_EPSILON = 1e-5f;
 
   constexpr size_t MAX_INSTANCES = 30;
 
@@ -25,17 +25,24 @@ namespace Common
     float minZ;
     float maxZ;
   };
+
+  enum UVMapping {
+    UV_AXIS,
+    UV_NORMAL
+  };
   
   struct InputFlags
   {
     bool  useTexture;
     bool  addInstance;
     bool  resetInstances;
+    UVMapping uvMapping;
   
     InputFlags()
       : useTexture(false),
         addInstance(false),
-        resetInstances(false) {}
+        resetInstances(false),
+        uvMapping(UV_AXIS) {}
   };
 }
 

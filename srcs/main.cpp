@@ -39,15 +39,22 @@ int main(int argc, char **argv)
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);          // 描画mode設定
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glDisable(GL_CULL_FACE);
+    // glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
    
     // shaderをインスタンス化 注)OpenGLコンテキストを使うのでWindowの後
     Shader  shader("shaders/vertex.glsl", "shaders/fragment.glsl");
     
+    // shaderが正常にコンパイルされたらwindow表示する
+    window.show();
+
     // objのデータ作成  VAO,VBO,bounds,uv面設定
     Object  obj(tokenizer.getVertices(),
                 tokenizer.getFaces(),
                 tokenizer.getBounds(),
-                Object::UV_YZ);
+                Object::UV_YZ,
+                Common::UV_AXIS);
     obj.setupGPU();
 
     // Maipulator作成　objを初期ポジションに置く
@@ -74,6 +81,9 @@ int main(int argc, char **argv)
     {
       // キー操作
       window.processInput(manipulator, textureScale, inputFlags);
+
+      // uv mapping切り替え
+      obj.setUVMapping(inputFlags.uvMapping);
       
       // Magic Pocket
       if (inputFlags.addInstance && instances.size() < Common::MAX_INSTANCES)

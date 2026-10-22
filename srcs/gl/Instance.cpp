@@ -20,7 +20,7 @@ void  Instance::setInstance(std::vector<Instance>& instances)
   axis.x = randomFloat(-2.0f, 2.0f);
   axis.y = randomFloat(-2.0f, 2.0f);
   axis.z = randomFloat(-2.0f, 2.0f);
-  if (axis.length() < Common::VECTOR_EPSILION)
+  if (axis.length() < Common::VECTOR_EPSILON)
     axis = Vec3(0.0f, 1.0f, 0.0f);
   instance.rotationAxis = axis.normalize();
 

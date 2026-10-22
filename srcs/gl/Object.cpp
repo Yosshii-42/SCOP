@@ -5,8 +5,10 @@
 Object::Object(const std::vector<float>& vertices,
                const std::vector<std::vector<unsigned int> >& faces,
                const Common::Bounds& bounds,
-               UVMode mode)
-  : vertices_(vertices), faces_(faces), bounds_(bounds), uvMode_(mode), VAO_(0), VBO_(0)
+               UVMode mode,
+               Common::UVMapping mapping)
+  : vertices_(vertices), faces_(faces), bounds_(bounds),
+    uvMode_(mode), uvMapping_(mapping), VAO_(0), VBO_(0)
 {
   setVertexData();
 }
@@ -26,8 +28,10 @@ void  Object::setVertexData()
     if (face.size() < 3)
       throw std::runtime_error("Face size error");
 
-    // faceのUVModeを取得する
-    UVMode  uvMode = getUVMode(face);
+    // faceのUVModeとnormalを取得する
+    Vec3    normal;
+    UVMode  uvMode = getUVMode(face, normal);
+
 
     // color指定
     // float gray = 0.7f; // 1色
@@ -35,13 +39,14 @@ void  Object::setVertexData()
     // float gray = 0.3f + static_cast<float>(std::rand() % 46) / 100.0f; // ランダム
 
     // 頂点処理手法指定
-    // trianglateFan(face, gray, uvMode);
-    triangulateEarClipping(face, gray, uvMode);
+    // trianglateFan(face, gray, uvMode, getUVBais(normal));
+    triangulateEarClipping(face, gray, uvMode, getUVBais(normal));
   }
 }
 
+// 扇状に分割する処理
 void  Object::trianglateFan(const std::vector<unsigned int>& face,
-                            float gray, UVMode uvMode)
+                            float gray, UVMode uvMode, const UVBasis& uvBasis)
 {
   for (size_t j = 1; j + 1 < face.size(); ++j)
   {
@@ -51,14 +56,15 @@ void  Object::trianglateFan(const std::vector<unsigned int>& face,
     unsigned int  index3 = face[j + 1] - 1;
 
     // face番号を元に、3つの頂点の座興データを取得し、vertexData_にpush_backする
-    addVertexData(index1, gray, uvMode);
-    addVertexData(index2, gray, uvMode);
-    addVertexData(index3, gray, uvMode);
+    addVertexData(index1, gray, uvMode, uvBasis);
+    addVertexData(index2, gray, uvMode, uvBasis);
+    addVertexData(index3, gray, uvMode, uvBasis);
   }
 }
 
+// Ear Clippingを使って分割する処理
 void  Object::triangulateEarClipping(const std::vector<unsigned int>& face,
-                                     float gray, UVMode uvMode)
+                                     float gray, UVMode uvMode, UVBasis uvBasis)
 {
   // Ear Clippingで三角形に分割(凹み図形に対応する)
   std::vector<unsigned int> triangulars = triangulate(face, uvMode);
@@ -71,49 +77,34 @@ void  Object::triangulateEarClipping(const std::vector<unsigned int>& face,
     unsigned int  index3 = triangulars[j + 2] - 1;
 
     // face番号を元に、3つの頂点の座興データを取得し、vertexData_にpush_backする
-    addVertexData(index1, gray, uvMode);
-    addVertexData(index2, gray, uvMode);
-    addVertexData(index3, gray, uvMode);    
+    addVertexData(index1, gray, uvMode, uvBasis);
+    addVertexData(index2, gray, uvMode, uvBasis);
+    addVertexData(index3, gray, uvMode, uvBasis);
   }
 }
 
-void  Object::addVertexData(unsigned int index, float gray, UVMode uvMode)
+// x,y,z,r,g,b,u,vの設定
+void  Object::addVertexData(unsigned int index, float gray,
+                            UVMode uvMode, const UVBasis& uvBasis)
 {
-  float x = vertices_[index * 3];
-  float y = vertices_[index * 3 + 1];
-  float z = vertices_[index * 3 + 2];
+  Vec3  p = getVertex(index);
+  Vec2  uv;
 
-  float u;
-  float v;
+  if (uvMapping_ == Common::UV_AXIS)
+    uv = getUVAxis(p, uvMode);
+  else
+    uv = getUVNormal(p, uvBasis);
 
-  switch (uvMode)
-  {
-    case UV_XY:
-      u = x - bounds_.minX; // textureの(0,0)を元にした座標を求める
-      v = y - bounds_.minY;
-      break;
-    
-    case UV_YZ:
-      v = y - bounds_.minY;
-      u = z - bounds_.minZ;
-      break;
+  vertexData_.push_back(p.x);
+  vertexData_.push_back(p.y);
+  vertexData_.push_back(p.z);
 
-    case UV_ZX:
-      v = z - bounds_.minZ;
-      u = x - bounds_.minX;
-      break;
-  }
-
-  vertexData_.push_back(x);
-  vertexData_.push_back(y);
-  vertexData_.push_back(z);
-
-  vertexData_.push_back(gray); // r
-  vertexData_.push_back(gray); // g
-  vertexData_.push_back(gray); // b
+  vertexData_.push_back(gray);  // r
+  vertexData_.push_back(gray);  // g
+  vertexData_.push_back(gray);  // b
   
-  vertexData_.push_back(u);
-  vertexData_.push_back(v);
+  vertexData_.push_back(uv.x);  // u
+  vertexData_.push_back(uv.y);  // v
 }
 
 // Ear Clippingによる三角形分割を計算する
@@ -195,11 +186,10 @@ Vec3  Object::getVertex(unsigned int index) const
 }
 
 // faceのUV面を決める
-Object::UVMode  Object::getUVMode(const std::vector<unsigned int>& face) const
+Object::UVMode  Object::getUVMode(const std::vector<unsigned int>& face,
+                                  Vec3& normal) const
 {
   // faces_[i]の法線ベクトルを求める Newell's Method
-  Vec3  normal;
-
   for (std::size_t i = 0; i < face.size(); ++i)
   {
     Vec3  a = getVertex(face[i] - 1);
@@ -209,6 +199,9 @@ Object::UVMode  Object::getUVMode(const std::vector<unsigned int>& face) const
     normal.y += (a.z - b.z) * (a.x + b.x);
     normal.z += (a.x - b.x) * (a.y + b.y);
   }
+  if (normal.length() == 0.0f)
+    throw std::runtime_error("Invalid face normal: zero-length vector");
+  normal = normal.normalize();
 
   // x, y, zの最大と成分を求める
   float absX = std::fabs(normal.x);
@@ -223,6 +216,59 @@ Object::UVMode  Object::getUVMode(const std::vector<unsigned int>& face) const
   else
     return (UV_XY);
 }
+
+// 軸貼り付け u,vを求める
+Vec2  Object::getUVAxis(const Vec3& p, Object::UVMode uvMode) const
+{
+  float u;
+  float v;
+  
+  switch (uvMode)
+  {
+    case UV_XY:
+      u = p.x - bounds_.minX; // textureの(0,0)を元にした座標を求める
+      v = p.y - bounds_.minY;
+      break;
+    
+    case UV_YZ:
+      v = p.y - bounds_.minY;
+      u = p.z - bounds_.minZ;
+      break;
+
+    case UV_ZX:
+      v = p.z - bounds_.minZ;
+      u = p.x - bounds_.minX;
+      break;
+  }
+  return (Vec2(u, v));
+}
+
+// 法線貼り付け u,vを求める
+Vec2  Object::getUVNormal(const Vec3& p, const UVBasis& basis) const
+{
+  float u = p.dot(basis.u);
+  float v = p.dot(basis.v);
+  return (Vec2(u, v));
+}
+
+// Vec3 u, Vec3 v の構造体を返す
+Object::UVBasis Object::getUVBais(const Vec3& normal) const
+{
+  Vec3  helperAxis;
+
+  if (std::fabs(normal.y) < 0.9f)
+    helperAxis = Vec3(0.0f, 1.0f, 0.0f);
+  else
+    helperAxis = Vec3(1.0f, 0.0f, 0.0f);
+
+  Vec3  u = helperAxis.cross(normal).normalize();
+  Vec3  v = normal.cross(u);
+
+  Object::UVBasis uvBasis;
+  uvBasis.u = u;
+  uvBasis.v = v;
+  return (uvBasis);  
+} 
 
 // 3D->2D投影
 Vec2 Object::projectTo2D(const Vec3& vertex, Object::UVMode mode)
@@ -314,6 +360,26 @@ void  Object::setUVMode(UVMode mode)
 {
   uvMode_ = mode;
 
+}
+
+// uv座標を更新する
+void  Object::setUVMapping(Common::UVMapping mapping)
+{
+  if (uvMapping_ == mapping)
+    return ;
+
+  uvMapping_ = mapping;
+
+  // 頂点データ再生成
+  vertexData_.clear();
+  setVertexData();
+
+  // VBO更新
+  glBindBuffer(GL_ARRAY_BUFFER, VBO_);
+  glBufferData(GL_ARRAY_BUFFER,
+              vertexData_.size() * sizeof(float),
+              vertexData_.data(),
+              GL_STATIC_DRAW);
 }
 
 void  Object::draw() const
