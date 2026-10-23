@@ -9,7 +9,7 @@
 - [Project Structure](#project-structure)
 - [Main features](#main-features)
 - [Controls](#controls)
-- [References](#references)
+- [Resources](#resources)
 - [AI Usage](#ai-usage)
 
 ## Description
@@ -40,10 +40,11 @@ GLFW is already installed in the 42 school environment, so no additional install
 - **Compiler:** C++17 compatible compiler
 - **Graphics API:** OpenGL 3.3 Core Profile
 - **Window / Input:** GLFW
-- **OpenGL Loader:** GLAD (included in the repository)
+- **OpenGL Loader:** GLAD 0.1.36 (automatically generated during the build)
 - **Build Tool:** Make
+- **Additional Requirements:** Python3, pip, and an internet connection for the initial build
 
-GLAD is included in this repository, so no additional installation is required.
+GLAD is not included in this repository. During the initial build, `install_glad.sh` installs the GLAD generator in a temporary directory and generates the OpenGL 3.3 Core Profile loader under `includes/glad/`.
 ```bash
 includes/
 └── glad/
@@ -55,6 +56,7 @@ includes/
     └── src/
         └── glad.c
 ```
+
 ### Installation
 ```bash
     git clone <repository of this project>
@@ -66,7 +68,9 @@ Compile the project with:
 ```bash
     make
 ```
+On the first build, the Makefile automatically runs install_glad.sh to generate the required GLAD files. Subsequent builds reuse the generated files.
 This creates the `SCOP` executable.
+
 Other available commands:
 - `make clean` - removes object and dependency files
 - `make fclean` - removes object files, dependency files, and the executable
@@ -91,7 +95,7 @@ The project is organized into modules based on their responsibilities.
     ├── img
     ├── includes
     │   ├── gl
-    │   ├── glad
+    │   ├── glad        # Automatically generated during build
     │   │   ├── include
     │   │   └── src
     │   ├── math
@@ -100,12 +104,14 @@ The project is organized into modules based on their responsibilities.
     │   └── validate
     ├── resources
     ├── shaders
-    └── srcs
-        ├── gl
-        ├── math
-        ├── parser
-        ├── utils
-        └── validate
+    ├── srcs
+    │   ├── gl
+    │   ├── math
+    │   ├── parser
+    │   ├── utils
+    │   └── validate
+    ├── install_glad.sh
+    └── Makefile 
 ```
 
 ## Main features
@@ -132,15 +138,17 @@ For non-coplanar polygons, Newell's Method is used to estimate a representative 
 - Triangle Fan triangulation for comparison and demonstration
 
 ### Bonus: Texture Mapping
-This project supports texture mapping using automatically generated UV coordinates.
-- Automatic planar UV projection based on face orientation
-- UV mapping using XY, XZ, or YZ projection planes
-- Adjust texture repetition interactively using keyboard controls
+This project supports automatic UV coordinate generation using two mapping methods:
+- **Axis-based mapping**: Projects texture coordinates onto the XY, XZ, or YZ plane according to the face orientation.
+- **Normal-based mapping**: Uses each face's normal vector to construct a local projection basis for UV coordinates.
+
+- Switch between mapping methods and adjust texture repetition using keyboard controls.
 
 Controls:
 - T: Toggle texture mapping on / off
 - C: Increase texture repetition
 - V: Decrease texture repetition
+- M: Switch between axis-based and normal-based UV mapping
 
 ### Bonus: Magic Pocket
 Press P to add a new instance of the loaded object with a randomized position, scale, and rotation axis.
@@ -187,9 +195,10 @@ The object can be manipulated using the following keyboard controls:
 | `Z` / `X` | Scale the object up / down |
 | `T` | Toggle texture on / off |
 | `C` / `V` | Increase / decrease texture repetition |
+| `M` | Switch between axis-based and normal-based UV mapping |
 | `P` | Add a new object instance |
 | `K` | Remove all added instances, keeping the first instance |
-| `SPACE` | Rotate each instance around its own randomly assignd axis |
+| `SPACE` | Rotate each instance around its own randomly assigned axis |
 | `ESC` | Close the window |
 
 ## Resources
@@ -204,7 +213,7 @@ The object can be manipulated using the following keyboard controls:
 - [Ear Clipping Triangulation](https://qiita.com/fujii-kotaro/items/a411f2a45627ed2f156e)
 - [Checking Whether a Point Lies on a Triangle's Vertices](http://www.sousakuba.com/Programming/gs_hittest_point_triangle.html)
 - [Normal vector of a polygon](https://web.ist.utl.pt/~antonio.menezes.leitao/Docs/Books/BookJulia/Parametric_Representation/Surface_Normals/index.html)
-- [mktmp, trap usage](https://www.linuxmaster.jp/linux_skill/2026/05/mktemp.html)
+- [mktemp, trap usage](https://www.linuxmaster.jp/linux_skill/2026/05/mktemp.html)
 
 ## AI Usage
 

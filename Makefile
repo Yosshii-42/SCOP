@@ -7,10 +7,6 @@ CC		= cc
 
 GLAD_DIR 	 = includes/glad
 
-GLAD_FILES = $(GLAD_DIR)/include/glad/glad.h \
-						 $(GLAD_DIR)/include/KHR/khrplatform.h \
-						 $(GLAD_DIR)/src/glad.c
-
 CXXFLAGS	= -Wall -Wextra -Werror -std=c++17 \
 			  		-I./includes \
 			  		-I$(GLAD_DIR)/include \
@@ -64,7 +60,7 @@ all: $(NAME)
 $(GLAD_DIR)/src/%.o: $(GLAD_DIR)/src/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(GLAD_FILES) &: install_glad.sh
+$(GLAD_DIR)/src/glad.c: install_glad.sh
 	./install_glad.sh
 
 $(OBJS): | $(GLAD_DIR)/src/glad.c
