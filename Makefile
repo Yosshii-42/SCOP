@@ -5,7 +5,11 @@ NAME	= SCOP
 CXX		= c++
 CC		= cc
 
-GLAD_DIR = includes/glad
+GLAD_DIR 	 = includes/glad
+
+GLAD_FILES = $(GLAD_DIR)/include/glad/glad.h \
+						 $(GLAD_DIR)/include/KHR/khrplatform.h \
+						 $(GLAD_DIR)/src/glad.c
 
 CXXFLAGS	= -Wall -Wextra -Werror -std=c++17 \
 			  		-I./includes \
@@ -14,7 +18,8 @@ CXXFLAGS	= -Wall -Wextra -Werror -std=c++17 \
 
 CFLAGS		= -Wall -Wextra -Werror \
 			  		-I./includes \
-			  		-I$(GLAD_DIR)/include
+			  		-I$(GLAD_DIR)/include \
+						-MMD -MP
 
 # macOSとLinuxでライブラリを分ける
 ifeq ($(UNAME_S), Darwin)
@@ -30,6 +35,7 @@ else
 endif
 
 SRCS	= $(GLAD_DIR)/src/glad.c \
+				srcs/main.cpp \
 				srcs/utils/utils.cpp \
 				srcs/gl/Window.cpp \
 				srcs/gl/Shader.cpp \
@@ -46,29 +52,31 @@ SRCS	= $(GLAD_DIR)/src/glad.c \
 				srcs/parser/BMP.cpp \
 				srcs/validate/MeshDiagnostics.cpp
 
-SRC_M  	= srcs/main.cpp
 
 OBJS	= $(SRCS:.cpp=.o)
 OBJS	:= $(OBJS:.c=.o)
 
-OBJ_M	= $(SRC_M:.cpp=.o)
-
-DEPS	= $(OBJS:.o=.d) \
-		  	$(OBJ_M:.o=.d)
+DEPS	= $(OBJS:.o=.d)
 
 all: $(NAME)
+
+# glad生成
+$(GLAD_DIR)/src/%.o: $(GLAD_DIR)/src/%.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(GLAD_FILES) &: install_glad.sh
+	./install_glad.sh
+
+$(OBJS): | $(GLAD_DIR)/src/glad.c
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(NAME): $(OBJS) $(OBJ_M)
-	$(CXX) $(OBJS) $(OBJ_M) $(LIBS) -o $(NAME)
-
-$(GLAD_DIR)/src/%.o: $(GLAD_DIR)/src/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
+$(NAME): $(OBJS)
+	$(CXX) $(OBJS) $(LIBS) -o $(NAME)
 
 clean:
-	rm -f $(OBJS) $(OBJ_M) $(DEPS)
+	rm -f $(OBJS) $(DEPS)
 
 fclean: clean
 	rm -f $(NAME)
@@ -76,5 +84,7 @@ fclean: clean
 re:
 	$(MAKE) fclean 
 	$(MAKE) all
+
+.PHONY: all clean fclean re
 
 -include $(DEPS)

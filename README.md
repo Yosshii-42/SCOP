@@ -204,6 +204,7 @@ The object can be manipulated using the following keyboard controls:
 - [Ear Clipping Triangulation](https://qiita.com/fujii-kotaro/items/a411f2a45627ed2f156e)
 - [Checking Whether a Point Lies on a Triangle's Vertices](http://www.sousakuba.com/Programming/gs_hittest_point_triangle.html)
 - [Normal vector of a polygon](https://web.ist.utl.pt/~antonio.menezes.leitao/Docs/Books/BookJulia/Parametric_Representation/Surface_Normals/index.html)
+- [mktmp, trap usage](https://www.linuxmaster.jp/linux_skill/2026/05/mktemp.html)
 
 ## AI Usage
 
