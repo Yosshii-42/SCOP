@@ -24,12 +24,12 @@ Additionally, a texture can be loaded and applied to the 3D object.
 ### Ubuntu
 
 ```bash
-    sudo apt update && sudo apt install -y build-essential cmake xorg-dev libgl1-mesa-dev libglfw3-dev
+sudo apt update && sudo apt install -y build-essential cmake xorg-dev libgl1-mesa-dev libglfw3-dev
 ```
 
 ### MacOS
 ```bash
-    brew install glfw
+brew install glfw
 ```
 
 GLFW is already installed in the 42 school environment, so no additional installation is required.
@@ -42,7 +42,7 @@ GLFW is already installed in the 42 school environment, so no additional install
 - **Window / Input:** GLFW
 - **OpenGL Loader:** GLAD 0.1.36 (automatically generated during the build)
 - **Build Tool:** Make
-- **Additional Requirements:** Python3, pip, and an internet connection for the initial build
+- **Additional Requirements:** Python 3, pip, and an internet connection for the initial build
 
 GLAD is not included in this repository. During the initial build, `install_glad.sh` installs the GLAD generator in a temporary directory and generates the OpenGL 3.3 Core Profile loader under `includes/glad/`.
 ```bash
@@ -59,26 +59,34 @@ includes/
 
 ### Installation
 ```bash
-    git clone <repository of this project>
-    cd project-name
+git clone <repository of this project>
+cd project-name
 ```
 
 ### Compilation
 Compile the project with:
 ```bash
-    make
+make
 ```
-On the first build, the Makefile automatically runs install_glad.sh to generate the required GLAD files. Subsequent builds reuse the generated files.
+On the first build, the Makefile automatically runs `install_glad.sh` to generate the required GLAD files. Subsequent builds reuse the generated files.
 This creates the `SCOP` executable.
 
 Other available commands:
 - `make clean` - removes object and dependency files
 - `make fclean` - removes object files, dependency files, and the executable
 - `make re` - rebuilds the project
+
+#### Regenerating GLAD
+If any of the generated GLAD files are missing or corrupted, remove the includes/glad/ directory and rebuild the project:
+```bash
+rm -rf includes/glad
+make re
+```
+The build process will automatically regenerate the required GLAD files.
     
 ### Usage
 ```bash
-    ./SCOP <obj_file> <bmp_file>
+./SCOP <obj_file> <bmp_file>
 ```
 
 ## Project Structure
