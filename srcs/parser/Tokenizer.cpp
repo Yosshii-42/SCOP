@@ -52,7 +52,7 @@ void  Tokenizer::setVertices(std::istringstream& iss)
 
   // x, y, z以降の文字列について
   std::string extra;
-  if (iss >> extra)
+  if (iss >> extra && extra[0] != '#')
     throw std::runtime_error("Invalid vartex components");
 
   // x, y, zのfloat値をチェックしてpush_back
@@ -89,14 +89,21 @@ void  Tokenizer::setFaces(std::istringstream& iss)
   while (iss >> x)
   {
     if (x > maxFaceIndex_)
-      maxFaceIndex_ = x;
+    maxFaceIndex_ = x;
     face.push_back(x);
   }
-  if (face.size() < 3 || !iss.eof())
+  
+  std::string extra;
+  if (iss >> extra && extra[0] != '#')
+    throw std::runtime_error("Invalid vartex components");
+
+  if (face.size() < 3)
   {
+    std::cout << "x = " << x << std::endl; 
     std::cerr << "Invalid face element" << std::endl;
     std::exit(EXIT_FAILURE);
   } 
+  
   faces_.push_back(face);
 }
 
